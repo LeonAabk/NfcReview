@@ -1,0 +1,128 @@
+import React from 'react';
+import { Mail, Phone, MapPin, ShieldCheck } from 'lucide-react';
+
+interface FooterProps {
+  onOpenTerms: () => void;
+  onOpenPrivacy: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy }) => {
+  return (
+    <footer className="bg-slate-950 text-white border-t border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+          {/* Brand & mission */}
+          <div className="space-y-4 md:col-span-1">
+            <div className="flex items-center space-x-2 text-lg font-bold">
+              <span className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-black">
+                ★
+              </span>
+              <span>NFC Review<span className="text-blue-500">.no</span></span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Norges ledende leverandør av kontaktløse NFC-anmeldelseskort og QR-bordskilt. Vi hjelper fysiske bedrifter med å automatisere innhenting av 5-stjerners Google-omtaler.
+            </p>
+          </div>
+
+          {/* Navigation links */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Snarveier
+            </h4>
+            <ul className="space-y-2 text-xs text-slate-400">
+              <li>
+                <a href="#home" className="hover:text-white transition-colors">Hjem</a>
+              </li>
+              <li>
+                <a href="#how-it-works" className="hover:text-white transition-colors">Slik fungerer det</a>
+              </li>
+              <li>
+                <a href="#products" className="hover:text-white transition-colors">Produktoversikt</a>
+              </li>
+              <li>
+                <a href="#simulator" className="hover:text-white transition-colors">Prøv simulator</a>
+              </li>
+              <li>
+                <a href="#faq" className="hover:text-white transition-colors">Ofte stilte spørsmål</a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal and compliance */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Trygghet & Vilkår
+            </h4>
+            <ul className="space-y-2 text-xs text-slate-400">
+              <li>
+                <button
+                  onClick={onOpenTerms}
+                  className="hover:text-white transition-colors text-left"
+                >
+                  Salgsbetingelser
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={onOpenPrivacy}
+                  className="hover:text-white transition-colors text-left"
+                >
+                  Personvernerklæring
+                </button>
+              </li>
+              <li className="pt-2 text-[11px] text-slate-500">
+                100% GDPR-kompatibel. Ingen sporing av kundenes personvern eller mobilenhet.
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact info */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Kontakt & Support
+            </h4>
+            <div className="space-y-2 text-xs text-slate-400">
+              <div className="flex items-center space-x-2">
+                <Mail className="w-4 h-4 text-blue-400 shrink-0" />
+                <span>hei@nfcreview.no</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Phone className="w-4 h-4 text-blue-400 shrink-0" />
+                <span>+47 22 00 11 22</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
+                <span>Storgata 15, 0155 Oslo</span>
+              </div>
+              <div className="text-[11px] text-slate-500 pt-1">
+                Org.nr: 928 341 552 MVA
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom bar with payment methods and copyright */}
+        <div className="border-t border-slate-800/80 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p>© {new Date().getFullYear()} NFC Review Norge. Alle rettigheter reservert.</p>
+
+          {/* Payment Badges */}
+          <div className="flex items-center space-x-3 text-slate-400">
+            <span className="text-[11px] font-semibold text-slate-300">Sikker betaling via</span>
+            <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded font-semibold text-white text-[10px]">
+              STRIPE
+            </span>
+            <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded font-semibold text-white text-[10px]">
+              VIPPS
+            </span>
+            <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded font-semibold text-white text-[10px]">
+              VISA
+            </span>
+            <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded font-semibold text-white text-[10px]">
+              MASTERCARD
+            </span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};

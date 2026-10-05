@@ -1,0 +1,7 @@
+{
+  "name": "NFC Review - Smarte Google Anmeldelseskort",
+  "description": "Få flere 5-stjerners Google-anmeldelser med kontaktløse NFC-kort og QR-bordskilt for norske bedrifter. Ingen app kreves.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
