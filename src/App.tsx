@@ -52,6 +52,31 @@ export default function App() {
     }
   }, [cartItems]);
 
+  // Global ESC key and body scroll lock for any open modal
+  useEffect(() => {
+    const isAnyModalOpen = isCartOpen || isCheckoutOpen || isAdminOpen || activeLegalModal !== null;
+
+    if (isAnyModalOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          if (isCheckoutOpen) setIsCheckoutOpen(false);
+          else if (isAdminOpen) setIsAdminOpen(false);
+          else if (activeLegalModal !== null) setActiveLegalModal(null);
+          else if (isCartOpen) setIsCartOpen(false);
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [isCartOpen, isCheckoutOpen, isAdminOpen, activeLegalModal]);
+
   const handleAddToCart = (product: Product, quantity = 1, targetUrl?: string) => {
     const validQty = Math.min(99, Math.max(1, Math.floor(quantity)));
     setCartItems((prev) => {
@@ -104,6 +129,11 @@ export default function App() {
   };
 
   const handleNavigate = (sectionId: string) => {
+    setIsCartOpen(false);
+    setIsCheckoutOpen(false);
+    setIsAdminOpen(false);
+    setActiveLegalModal(null);
+
     const el = document.getElementById(sectionId);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });

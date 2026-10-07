@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { OrderRecord, OrderStatus } from '../types';
+import { OrderRecord, OrderStatus, OrderChecklist } from '../types';
 import {
   getStoredOrders,
   updateOrderStatus,
+  updateOrderChecklist,
   deleteOrder,
   formatAddressForPosten,
   generateCustomerShippingEmail,
   getCustomerShippingEmailSubject,
   getCustomerShippingEmailBody,
-  saveOrder
+  saveOrder,
+  exportOrdersToCsv
 } from '../utils/orders';
 import {
   X,
@@ -29,7 +31,16 @@ import {
   Mail,
   LogOut,
   AlertTriangle,
-  ShieldCheck
+  ShieldCheck,
+  Download,
+  Printer,
+  Scissors,
+  CheckSquare,
+  Square,
+  Building2,
+  Phone,
+  QrCode,
+  RotateCcw
 } from 'lucide-react';
 import {
   verifyAdminPin,
@@ -60,6 +71,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedEmailId, setCopiedEmailId] = useState<string | null>(null);
   const [previewOrder, setPreviewOrder] = useState<OrderRecord | null>(null);
+  const [packingSlipOrder, setPackingSlipOrder] = useState<OrderRecord | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [customEmailBody, setCustomEmailBody] = useState<string>('');
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
@@ -77,6 +89,26 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
       loadOrders();
     }
   }, [isOpen]);
+
+  // Handle ESC key to dismiss submodals or main modal
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (packingSlipOrder) {
+          setPackingSlipOrder(null);
+        } else if (previewOrder) {
+          setPreviewOrder(null);
+        } else {
+          onClose();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, packingSlipOrder, previewOrder, onClose]);
 
   useEffect(() => {
     if (lockoutSeconds > 0) {
@@ -137,6 +169,25 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
     const updated = updateOrderStatus(orderId, newStatus, trackingInputs[orderId]);
     setOrders(updated);
+  };
+
+  const handleToggleChecklist = (orderId: string, step: keyof OrderChecklist) => {
+    const order = orders.find((o) => o.orderId === orderId);
+    const current = order?.checklist || {
+      programmedChip: false,
+      qrTested: false,
+      packed: false,
+      shipped: false
+    };
+    const nextVal = !current[step];
+    const updated = updateOrderChecklist(orderId, { [step]: nextVal });
+    setOrders(updated);
+
+    // If shipped is ticked and status was not 'sendt', update status to 'sendt'
+    if (step === 'shipped' && nextVal && order && order.status !== 'sendt') {
+      const statusUpdated = updateOrderStatus(orderId, 'sendt', trackingInputs[orderId]);
+      setOrders(statusUpdated);
+    }
   };
 
   const handleTrackingBlur = (orderId: string) => {
@@ -202,7 +253,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
             compatibility: 'Universal',
             features: []
           },
-          quantity: 1,
+          quantity: 2,
           targetUrl: 'https://g.page/r/example/review'
         },
         {
@@ -218,17 +269,17 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
             compatibility: 'Universal',
             features: []
           },
-          quantity: 2,
+          quantity: 3,
           targetUrl: 'https://kafe-nordic.no/meny'
         }
       ],
-      subtotal: 497,
-      discountAmount: 0,
-      shippingFee: 59,
-      total: 556,
+      subtotal: 895,
+      discountAmount: 89,
+      shippingFee: 0,
+      total: 806,
       customer: {
         companyName: 'Kafé & Bistro Nordic AS',
-        orgNumber: '923 456 789',
+        orgNumber: '923456789',
         contactPerson: 'Erik Johansen',
         email: 'post@kafenordic.no',
         phone: '92345678',
@@ -236,7 +287,14 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
         postalCode: '0184',
         city: 'Oslo',
         googleReviewUrl: 'https://g.page/r/example/review',
-        menuUrl: 'https://kafe-nordic.no/meny'
+        menuUrl: 'https://kafe-nordic.no/meny',
+        paymentMethod: 'vipps_card'
+      },
+      checklist: {
+        programmedChip: true,
+        qrTested: true,
+        packed: false,
+        shipped: false
       }
     };
     saveOrder(sampleOrder);
@@ -259,7 +317,16 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
   const newOrdersCount = orders.filter((o) => o.status === 'ny').length;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 touch-manipulation"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="relative bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
         <div className="p-4 sm:p-6 bg-slate-900 text-white flex items-center justify-between shrink-0">
@@ -269,7 +336,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-base sm:text-lg font-bold">Admin: Ordre- & Forsendelsespanel</h2>
+                <h2 className="text-base sm:text-lg font-bold">Admin: Ordre- & Driftskontroll</h2>
                 <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded">
                   UB INTERN
                 </span>
@@ -281,7 +348,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                 )}
               </div>
               <p className="text-xs text-slate-400">
-                Oversikt over bestillinger, lenker til programmering og Posten-sporing
+                Kvalitetskontroll, pakkesedler, Excel-eksport og Posten-sporing
               </p>
             </div>
           </div>
@@ -299,7 +366,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
             )}
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+              className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors"
               aria-label="Lukk adminpanel"
             >
               <X className="w-5 h-5" />
@@ -307,68 +374,57 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
           </div>
         </div>
 
+        {/* Lock Screen if Not Authenticated */}
         {!isAuthenticated ? (
-          /* Login Screen */
-          <div className="p-8 sm:p-12 text-center max-w-md mx-auto my-auto space-y-5">
-            <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mx-auto border border-slate-200 shadow-xs">
-              <Lock className="w-7 h-7 text-blue-600" />
+          <div className="p-8 sm:p-12 text-center space-y-6 my-auto max-w-md mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto border border-blue-200 shadow-sm">
+              <Lock className="w-8 h-8" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900">Logg inn som administrator</h3>
+              <h3 className="text-xl font-bold text-slate-900">Adgangskontroll for Ungdomsbedriften</h3>
               <p className="text-xs text-slate-500 mt-1">
-                Kun tilgjengelig for autoriserte medlemmer i NFC Review UB.
+                Tast inn PIN-koden for å administrere bestillinger, skrive ut pakkesedler og eksportere regnskap.
               </p>
             </div>
 
             {lockoutSeconds > 0 ? (
-              <div className="p-4 bg-amber-50 border border-amber-300 rounded-xl text-left space-y-2 animate-in fade-in">
-                <div className="flex items-center space-x-2 text-amber-900 font-bold text-xs">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>Midlertidig sikkerhetssperre aktivert</span>
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs space-y-1">
+                <div className="flex items-center justify-center space-x-1 font-bold">
+                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+                  <span>Sikkerhetssperre aktivert</span>
                 </div>
-                <p className="text-xs text-amber-800">
-                  For mange mislykkede påloggingsforsøk. Vennligst vent <strong>{lockoutSeconds} sekunder</strong> før nytt forsøk.
-                </p>
+                <p>For mange feilforsøk. Vent {lockoutSeconds} sekunder før neste forsøk.</p>
               </div>
             ) : null}
 
             <form onSubmit={handleLogin} className="space-y-3">
-              <div>
-                <input
-                  type="password"
-                  inputMode="numeric"
-                  maxLength={8}
-                  autoComplete="current-password"
-                  disabled={lockoutSeconds > 0}
-                  value={pinInput}
-                  onChange={(e) => {
-                    setPinInput(e.target.value);
-                    setPinError(false);
-                  }}
-                  placeholder="Tast 4-sifret admin-PIN"
-                  className={`w-full text-center text-lg tracking-widest font-mono p-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                    pinError
-                      ? 'border-red-400 bg-red-50/50 text-red-900'
-                      : 'border-slate-300 text-slate-900'
-                  } ${lockoutSeconds > 0 ? 'opacity-50 cursor-not-allowed bg-slate-100' : ''}`}
-                  autoFocus
-                />
-                {pinError && (
-                  <div className="mt-2 text-xs text-red-600 font-semibold space-y-0.5">
-                    <p>Ugyldig PIN-kode.</p>
-                    {remainingAttempts !== null && (
-                      <p className="text-[11px] text-red-500 font-normal">
-                        {remainingAttempts} forsøk gjenstår før 60 sekunders sperre.
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
+              <input
+                type="password"
+                inputMode="numeric"
+                autoComplete="current-password"
+                maxLength={8}
+                disabled={lockoutSeconds > 0}
+                value={pinInput}
+                onChange={(e) => {
+                  setPinInput(e.target.value);
+                  setPinError(false);
+                }}
+                placeholder="Skriv inn 4-sifret PIN-kode"
+                className={`w-full text-center text-xl tracking-widest font-mono py-3 px-4 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                  pinError ? 'border-red-400 bg-red-50 text-red-700' : 'border-slate-300'
+                }`}
+              />
+
+              {pinError && lockoutSeconds === 0 && (
+                <p className="text-xs text-red-600 font-semibold animate-in fade-in">
+                  Feil PIN-kode. {remainingAttempts !== null && `Gjenværende forsøk: ${remainingAttempts}`}
+                </p>
+              )}
 
               <button
                 type="submit"
                 disabled={lockoutSeconds > 0 || !pinInput.trim()}
-                className={`w-full py-3 text-white font-bold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center space-x-2 ${
+                className={`w-full py-3 text-white font-bold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center space-x-2 touch-manipulation min-h-[44px] ${
                   lockoutSeconds > 0 || !pinInput.trim()
                     ? 'bg-slate-300 cursor-not-allowed'
                     : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
@@ -377,23 +433,31 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                 <ShieldCheck className="w-4 h-4" />
                 <span>Lås opp ordreoversikt</span>
               </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-colors min-h-[44px] flex items-center justify-center touch-manipulation"
+              >
+                Avbryt / Tilbake til butikken
+              </button>
             </form>
 
             <div className="pt-2 border-t border-slate-100 flex items-center justify-center space-x-2 text-[11px] text-slate-500">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>Sikret med 256-bit kryptering og automatisk brute force-vern</span>
+              <span>Sikret med SHA-256 kryptering og automatisk brute force-vern</span>
             </div>
           </div>
         ) : (
           /* Authenticated Admin Workspace */
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Top Stats Bar & Tabs */}
-            <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+            <div className="p-3 sm:p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
               {/* Tab Switcher */}
               <div className="flex items-center gap-1.5 p-1 bg-white rounded-xl border border-slate-200 text-xs font-semibold">
                 <button
                   onClick={() => setActiveTab('orders')}
-                  className={`px-3.5 py-1.5 rounded-lg transition-colors flex items-center space-x-1.5 ${
+                  className={`px-3 py-1.5 rounded-lg transition-colors flex items-center space-x-1.5 ${
                     activeTab === 'orders' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -407,24 +471,34 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                 </button>
                 <button
                   onClick={() => setActiveTab('guide')}
-                  className={`px-3.5 py-1.5 rounded-lg transition-colors flex items-center space-x-1.5 ${
+                  className={`px-3 py-1.5 rounded-lg transition-colors flex items-center space-x-1.5 ${
                     activeTab === 'guide' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   <HelpCircle className="w-3.5 h-3.5" />
-                  <span>Slik sender du pakken (Guide)</span>
+                  <span>Driftsveileder (Guide)</span>
                 </button>
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons: Export to Excel/CSV & Add sample */}
               <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => exportOrdersToCsv(orders)}
+                  disabled={orders.length === 0}
+                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-xs"
+                  title="Last ned alle salg ferdig formatert til Excel / CSV for Fiken eller Ungt Entreprenørskap"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Eksporter til Excel / CSV</span>
+                </button>
+
                 <button
                   onClick={handleAddSampleOrder}
                   className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors"
                   title="Legg til en eksempelordre for å teste flyten"
                 >
                   <PlusCircle className="w-3.5 h-3.5 text-blue-600" />
-                  <span>+ Test-ordre</span>
+                  <span className="hidden sm:inline">+ Test-ordre</span>
                 </button>
               </div>
             </div>
@@ -438,7 +512,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                     <span>Slik håndterer du en bestilling fra A til Å:</span>
                   </h3>
                   <p className="text-xs text-slate-500 mt-1">
-                    Følg disse 5 stegene for å levere en profesjonell opplevelse for kunden.
+                    Følg kvalitetskontrollen (Brikke $\to$ QR $\to$ Pakket $\to$ Sendt) for å sikre 100% feilfrie leveranser.
                   </p>
                 </div>
 
@@ -447,10 +521,10 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                   <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
                     <div className="flex items-center space-x-2 text-blue-600 font-bold text-xs uppercase">
                       <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs">1</span>
-                      <span>Sjekk kundens lenke</span>
+                      <span>1. Programmer brikken (NFC Tools)</span>
                     </div>
                     <p className="text-xs text-slate-600">
-                      Gå til bestillingen i listen under og klikk <strong>«Test lenke ↗»</strong>. Kontroller at lenken åpner Google-anmeldelsessiden eller den digitale menyen til kunden riktig.
+                      Gå til bestillingen og klikk <strong>«Test lenke ↗»</strong> for å verifisere lenken. Åpne gratisappen <strong>NFC Tools</strong> $\to$ <em>Write</em> $\to$ <em>Add record</em> $\to$ <em>Custom URL</em> $\to$ Hold mobilen inntil brikken. Huk av i sjekklisten!
                     </p>
                   </div>
 
@@ -458,10 +532,10 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                   <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
                     <div className="flex items-center space-x-2 text-blue-600 font-bold text-xs uppercase">
                       <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs">2</span>
-                      <span>Programmer med NFC Tools</span>
+                      <span>2. Kvalitetstest QR og NFC med mobil</span>
                     </div>
                     <p className="text-xs text-slate-600">
-                      Last ned gratisappen <strong>NFC Tools</strong> (iOS/Android). Velg <em>«Write»</em> $\to$ <em>«Add a record»</em> $\to$ <em>«Custom URL/URI»</em> $\to$ Lim inn lenken $\to$ Hold mobilen inntil brikken.
+                      Lukk NFC Tools og test brikken og den trykte QR-koden med vanlig mobilkamera/NFC. Sjekk at Google-anmeldelsen eller menyen åpner seg direkte. Huk av i sjekklisten!
                     </p>
                   </div>
 
@@ -469,10 +543,10 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                   <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
                     <div className="flex items-center space-x-2 text-blue-600 font-bold text-xs uppercase">
                       <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs">3</span>
-                      <span>Kvalitetstest brikken</span>
+                      <span>3. Skriv ut pakkeseddel & adresselapp</span>
                     </div>
                     <p className="text-xs text-slate-600">
-                      Lukk appen og hold telefonen mot akrylskiltet eller kortet som en vanlig kunde. Verifiser at lenken åpner seg lynraskt!
+                      Trykk <strong>«Pakkeseddel & Adresselapp»</strong> på ordren for å skrive ut A4-arket. Klipp ut den ferdige adresseetiketten for Posten og klistre på boblekonvolutten. Legg følgeseddelen oppi pakken. Huk av for Pakket!
                     </p>
                   </div>
 
@@ -480,22 +554,22 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                   <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
                     <div className="flex items-center space-x-2 text-blue-600 font-bold text-xs uppercase">
                       <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs">4</span>
-                      <span>Kjøp frakt på Posten.no</span>
+                      <span>4. Send pakken & oppdater kunden</span>
                     </div>
                     <p className="text-xs text-slate-600">
-                      Trykk <strong>«Kopier adresse»</strong> på ordren. Gå til <em>posten.no/sende</em>, velg <em>Norgespakke (liten)</em>, lim inn adressen og betal frakten. Klistre etiketten på boblekonvolutten.
+                      Lever pakken i postkassen eller hos Post i Butikk. Lim inn sporingsnummeret i feltet, og trykk <strong>«Kopier ferdig e-postmal»</strong> for å sende oppdatering til kunden!
                     </p>
                   </div>
                 </div>
 
-                {/* Step 5 */}
+                {/* Accounting box */}
                 <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 space-y-1.5">
                   <div className="flex items-center space-x-2 text-emerald-800 font-bold text-xs uppercase">
-                    <span className="w-6 h-6 rounded-full bg-emerald-200 flex items-center justify-center text-xs">5</span>
-                    <span>Send e-post til kunden med ferdig mal!</span>
+                    <Download className="w-4 h-4 text-emerald-700" />
+                    <span>Regnskap og rapportering for Ungt Entreprenørskap</span>
                   </div>
                   <p className="text-xs text-emerald-900">
-                    Skriv inn sporingsnummeret fra Posten i feltet på ordren, og klikk <strong>«Kopier ferdig e-postmal»</strong>. Lim teksten rett inn i Gmail eller Outlook og send til kunden. E-posten inneholder direkte sporingslenke hos Posten, oppsummering og takk for støtten til ungdomsbedriften!
+                    Bruk knappen <strong>«Eksporter til Excel / CSV»</strong> øverst til høyre når som helst. Filen inneholder alle salg, mva/delsummer, betalingsformer (Kort vs EHF) og sjekklistestatus – perfekt for regnskapsrapporten til fylkesmesterskapet og Fiken!
                   </p>
                 </div>
               </div>
@@ -503,7 +577,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
               /* Orders List */
               <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Search & Filters */}
-                <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row gap-3 items-center justify-between shrink-0 bg-white">
+                <div className="p-3 sm:p-4 border-b border-slate-200 flex flex-col sm:flex-row gap-3 items-center justify-between shrink-0 bg-white">
                   {/* Search */}
                   <div className="relative w-full sm:w-72">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -558,11 +632,21 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                     >
                       Sendt med Posten
                     </button>
+                    <button
+                      onClick={() => setStatusFilter('fullfort')}
+                      className={`px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                        statusFilter === 'fullfort'
+                          ? 'bg-slate-800 text-white'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      Lukkede / Fullførte ({orders.filter((o) => o.status === 'fullfort').length})
+                    </button>
                   </div>
                 </div>
 
                 {/* Orders Scrollable Content */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4">
                   {filteredOrders.length === 0 ? (
                     <div className="text-center py-12 text-slate-400 space-y-2">
                       <Package className="w-10 h-10 mx-auto stroke-1" />
@@ -574,8 +658,19 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                   ) : (
                     filteredOrders.map((order) => {
                       const isNew = order.status === 'ny';
-                      const isSent = order.status === 'sendt';
-                      const hasTracking = Boolean(trackingInputs[order.orderId]);
+                      const isInvoice = order.customer.paymentMethod === 'invoice_ehf';
+                      const checklist = order.checklist || {
+                        programmedChip: false,
+                        qrTested: false,
+                        packed: false,
+                        shipped: false
+                      };
+                      const completedCount = [
+                        checklist.programmedChip,
+                        checklist.qrTested,
+                        checklist.packed,
+                        checklist.shipped
+                      ].filter(Boolean).length;
 
                       return (
                         <div
@@ -591,9 +686,24 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                                 #{order.orderId}
                               </span>
                               <div>
-                                <h4 className="text-sm font-bold text-slate-900">
-                                  {order.customer.companyName}
-                                </h4>
+                                <div className="flex items-center space-x-2">
+                                  <h4 className="text-sm font-bold text-slate-900">
+                                    {order.customer.companyName}
+                                  </h4>
+                                  {order.status === 'fullfort' ? (
+                                    <span className="bg-slate-100 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-300">
+                                      ✅ Lukket ordre
+                                    </span>
+                                  ) : isInvoice ? (
+                                    <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
+                                      EHF Faktura
+                                    </span>
+                                  ) : (
+                                    <span className="bg-emerald-50 text-emerald-700 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-emerald-200">
+                                      Kort / Vipps
+                                    </span>
+                                  )}
+                                </div>
                                 <p className="text-[11px] text-slate-500 flex items-center space-x-1">
                                   <Clock className="w-3 h-3" />
                                   <span>{new Date(order.createdAt).toLocaleString('no-NO')}</span>
@@ -601,7 +711,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                               </div>
                             </div>
 
-                            {/* Status Selector */}
+                            {/* Status Selector & Actions */}
                             <div className="flex items-center space-x-2">
                               <label className="text-xs text-slate-500 hidden sm:inline">Status:</label>
                               <select
@@ -612,14 +722,50 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                                     ? 'bg-amber-50 text-amber-900 border-amber-300'
                                     : order.status === 'behandles'
                                     ? 'bg-blue-50 text-blue-900 border-blue-300'
-                                    : 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                                    : order.status === 'sendt'
+                                    ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                                    : 'bg-slate-100 text-slate-900 border-slate-300'
                                 }`}
                               >
                                 <option value="ny">🟡 Ny bestilling</option>
                                 <option value="behandles">🔵 Under koding</option>
                                 <option value="sendt">🟢 Sendt med Posten</option>
-                                <option value="fullfort">✅ Fullført</option>
+                                <option value="fullfort">✅ Lukket / Fullført</option>
                               </select>
+
+                              {/* Quick Close / Reopen Order Button */}
+                              {order.status === 'fullfort' ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleStatusChange(order.orderId, 'sendt')}
+                                  className="px-2.5 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg flex items-center space-x-1 transition-colors"
+                                  title="Gjenåpne bestilling"
+                                >
+                                  <RotateCcw className="w-3.5 h-3.5 text-slate-600" />
+                                  <span className="hidden sm:inline">Gjenåpne</span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleStatusChange(order.orderId, 'fullfort')}
+                                  className="px-2.5 py-1.5 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-lg flex items-center space-x-1 transition-colors shadow-xs"
+                                  title="Lukk og fullfør bestillingen"
+                                >
+                                  <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span className="hidden sm:inline">Lukk ordre</span>
+                                </button>
+                              )}
+
+                              {/* Packing Slip Print Button */}
+                              <button
+                                type="button"
+                                onClick={() => setPackingSlipOrder(order)}
+                                className="px-2.5 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg flex items-center space-x-1 transition-colors"
+                                title="Generer A4-pakkeseddel og klippeklar adresseetikett for Posten"
+                              >
+                                <Printer className="w-3.5 h-3.5 text-slate-700" />
+                                <span className="hidden md:inline">Pakkeseddel</span>
+                              </button>
 
                               <button
                                 onClick={() => handleDelete(order.orderId)}
@@ -627,6 +773,117 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                                 title="Slett ordre"
                               >
                                 <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Quality Control Checklist Box */}
+                          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/90 text-xs space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2 font-bold text-slate-800">
+                                <Sparkles className="w-4 h-4 text-blue-600" />
+                                <span>Kvalitetskontroll (UB Driftsrutine)</span>
+                              </div>
+                              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                                completedCount === 4
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                  : 'bg-slate-200/80 text-slate-700'
+                              }`}>
+                                {completedCount === 4 ? '🎉 4/4 Klar til kunde!' : `${completedCount}/4 fullført`}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                              {/* Step 1: Chip Programmed */}
+                              <button
+                                type="button"
+                                onClick={() => handleToggleChecklist(order.orderId, 'programmedChip')}
+                                className={`p-2 rounded-lg border text-left transition-all flex items-start space-x-2 touch-manipulation ${
+                                  checklist.programmedChip
+                                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-semibold'
+                                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                                }`}
+                              >
+                                <div className="mt-0.5 shrink-0">
+                                  {checklist.programmedChip ? (
+                                    <CheckSquare className="w-4 h-4 text-emerald-600" />
+                                  ) : (
+                                    <Square className="w-4 h-4 text-slate-400" />
+                                  )}
+                                </div>
+                                <div className="text-[11px] leading-tight">
+                                  <p className="font-bold">1. Brikke programmert</p>
+                                  <p className="text-[10px] text-slate-500">NFC Tools app</p>
+                                </div>
+                              </button>
+
+                              {/* Step 2: QR Tested */}
+                              <button
+                                type="button"
+                                onClick={() => handleToggleChecklist(order.orderId, 'qrTested')}
+                                className={`p-2 rounded-lg border text-left transition-all flex items-start space-x-2 touch-manipulation ${
+                                  checklist.qrTested
+                                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-semibold'
+                                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                                }`}
+                              >
+                                <div className="mt-0.5 shrink-0">
+                                  {checklist.qrTested ? (
+                                    <CheckSquare className="w-4 h-4 text-emerald-600" />
+                                  ) : (
+                                    <Square className="w-4 h-4 text-slate-400" />
+                                  )}
+                                </div>
+                                <div className="text-[11px] leading-tight">
+                                  <p className="font-bold">2. QR/NFC testet</p>
+                                  <p className="text-[10px] text-slate-500">Skannet med mobil</p>
+                                </div>
+                              </button>
+
+                              {/* Step 3: Packed */}
+                              <button
+                                type="button"
+                                onClick={() => handleToggleChecklist(order.orderId, 'packed')}
+                                className={`p-2 rounded-lg border text-left transition-all flex items-start space-x-2 touch-manipulation ${
+                                  checklist.packed
+                                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-semibold'
+                                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                                }`}
+                              >
+                                <div className="mt-0.5 shrink-0">
+                                  {checklist.packed ? (
+                                    <CheckSquare className="w-4 h-4 text-emerald-600" />
+                                  ) : (
+                                    <Square className="w-4 h-4 text-slate-400" />
+                                  )}
+                                </div>
+                                <div className="text-[11px] leading-tight">
+                                  <p className="font-bold">3. Pakket i konvolutt</p>
+                                  <p className="text-[10px] text-slate-500">Med pakkeseddel</p>
+                                </div>
+                              </button>
+
+                              {/* Step 4: Shipped */}
+                              <button
+                                type="button"
+                                onClick={() => handleToggleChecklist(order.orderId, 'shipped')}
+                                className={`p-2 rounded-lg border text-left transition-all flex items-start space-x-2 touch-manipulation ${
+                                  checklist.shipped
+                                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-semibold'
+                                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                                }`}
+                              >
+                                <div className="mt-0.5 shrink-0">
+                                  {checklist.shipped ? (
+                                    <CheckSquare className="w-4 h-4 text-emerald-600" />
+                                  ) : (
+                                    <Square className="w-4 h-4 text-slate-400" />
+                                  )}
+                                </div>
+                                <div className="text-[11px] leading-tight">
+                                  <p className="font-bold">4. Sendt med Posten</p>
+                                  <p className="text-[10px] text-slate-500">Post i Butikk / kasse</p>
+                                </div>
                               </button>
                             </div>
                           </div>
@@ -658,8 +915,22 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                                 </button>
                               </div>
                               <p className="font-semibold text-slate-900">{order.customer.contactPerson}</p>
+                              {order.customer.orgNumber && (
+                                <p className="text-slate-500 text-[11px]">Org.nr: {order.customer.orgNumber}</p>
+                              )}
                               <p className="text-slate-600">{order.customer.address}</p>
                               <p className="text-slate-600">{order.customer.postalCode} {order.customer.city}</p>
+                              
+                              {isInvoice && (
+                                <div className="p-2 bg-blue-100/60 rounded border border-blue-200 text-[11px] text-blue-900 space-y-0.5 mt-1">
+                                  <p className="font-bold">Fakturadetaljer (14 dager):</p>
+                                  {order.customer.invoiceReference && (
+                                    <p>Ref: <span className="font-mono">{order.customer.invoiceReference}</span></p>
+                                  )}
+                                  <p>Faktura-mottak: {order.customer.invoiceEmail || order.customer.email}</p>
+                                </div>
+                              )}
+
                               <div className="pt-1 text-slate-500 border-t border-slate-200/60 mt-1 space-y-0.5">
                                 <p>Tlf: <a href={`tel:${order.customer.phone}`} className="text-blue-600 hover:underline">{order.customer.phone}</a></p>
                                 <p>E-post: <a href={`mailto:${order.customer.email}`} className="text-blue-600 hover:underline">{order.customer.email}</a></p>
@@ -812,9 +1083,267 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
           </div>
         )}
 
+        {/* Packing Slip & Shipping Label Modal (Printable A4) */}
+        {packingSlipOrder && (
+          <div
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setPackingSlipOrder(null);
+              }
+            }}
+            className="fixed inset-0 z-60 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto touch-manipulation"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="bg-white rounded-2xl max-w-3xl w-full p-4 sm:p-8 shadow-2xl border border-slate-200 space-y-6 max-h-[92vh] flex flex-col overflow-y-auto">
+              {/* Modal Top Actions */}
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200 print:hidden">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center">
+                    <Printer className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">
+                      Utskrift: Pakkeseddel & Adresselapp for Posten
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Ordre #{packingSlipOrder.orderId} · Klar for A4-utskrift og boblekonvolutt
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition-colors"
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span>Skriv ut nå (A4)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPackingSlipOrder(null)}
+                    className="p-2 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100"
+                    aria-label="Lukk pakkeseddel"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Printable Document Area */}
+              <div id="packing-slip-content" className="space-y-6 text-slate-900 bg-white p-2">
+                {/* Header: Company & Order info */}
+                <div className="flex items-start justify-between border-b-2 border-slate-900 pb-4">
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xl font-black tracking-tight text-blue-600">NFC REVIEW UB</span>
+                      <span className="text-[10px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-300">
+                        UNGDOMSBEDRIFT
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">Tilknyttet Ungt Entreprenørskap</p>
+                    <p className="text-xs text-slate-600">Kontakt: Leon.aabak@gmail.com</p>
+                  </div>
+
+                  <div className="text-right">
+                    <h2 className="text-lg font-black uppercase tracking-wider text-slate-900">
+                      PAKKESEDDEL & FØLGESEDDEL
+                    </h2>
+                    <p className="text-sm font-mono font-bold text-blue-600">#{packingSlipOrder.orderId}</p>
+                    <p className="text-xs text-slate-500">
+                      Dato: {new Date(packingSlipOrder.createdAt).toLocaleDateString('no-NO')}
+                    </p>
+                    <p className="text-xs font-semibold text-slate-700 mt-1">
+                      Betaling: {packingSlipOrder.customer.paymentMethod === 'invoice_ehf' ? 'Bedriftsfaktura / EHF (14 dg)' : 'Kort / Vipps (Betalt)'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* CUTOUT SHIPPING LABEL FOR POSTEN (KLIPPEKLAR ADRESSEETIKETT) */}
+                <div className="p-4 border-2 border-dashed border-slate-400 rounded-xl bg-slate-50/70 relative">
+                  <div className="flex items-center justify-between text-xs text-slate-500 pb-2 border-b border-slate-200">
+                    <span className="flex items-center space-x-1.5 font-bold uppercase tracking-wider text-slate-700 text-[11px]">
+                      <Scissors className="w-4 h-4 text-slate-700" />
+                      <span>KLIPP LANGS DENNE LINJEN OG LIM PÅ BOBLEKONVOLUTT (POSTEN)</span>
+                    </span>
+                    <span className="font-mono text-[10px]">NORGEPOST / A-POST / SPORING</span>
+                  </div>
+
+                  <div className="pt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Mottaker */}
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">MOTTAKER:</p>
+                      <p className="text-base font-black text-slate-950">{packingSlipOrder.customer.companyName}</p>
+                      <p className="text-xs font-semibold text-slate-800">Att: {packingSlipOrder.customer.contactPerson}</p>
+                      <p className="text-sm font-medium text-slate-900">{packingSlipOrder.customer.address}</p>
+                      <p className="text-base font-black text-slate-950">
+                        {packingSlipOrder.customer.postalCode} {packingSlipOrder.customer.city}
+                      </p>
+                      <p className="text-xs text-slate-600 pt-1">
+                        Tlf: {packingSlipOrder.customer.phone}
+                      </p>
+                    </div>
+
+                    {/* Avsender */}
+                    <div className="space-y-1 sm:border-l sm:border-slate-200 sm:pl-4 text-xs text-slate-600">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">AVSENDER:</p>
+                      <p className="font-bold text-slate-800">NFC Review UB (Ungdomsbedrift)</p>
+                      <p>v/ Leon Åbak</p>
+                      <p>E-post: Leon.aabak@gmail.com</p>
+                      <p className="pt-1 text-[11px] font-semibold text-blue-700">
+                        Innhold: NFC Google Anmeldelseskort / Bordskilt
+                      </p>
+                      {packingSlipOrder.trackingNumber && (
+                        <p className="font-mono text-[11px] font-bold text-slate-800">
+                          Sporing: {packingSlipOrder.trackingNumber}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* PROGRAMMING SPECIFICATION (FOR PRODUSERENDE ELEVER/VERKSTED) */}
+                <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl space-y-2 text-xs">
+                  <div className="flex items-center justify-between font-bold text-blue-900 text-xs">
+                    <span className="flex items-center space-x-1.5">
+                      <QrCode className="w-4 h-4 text-blue-700" />
+                      <span>PROGRAMMERINGS- OG KVALITETSKONTROLL</span>
+                    </span>
+                    <span className="text-[11px] font-semibold text-blue-800 bg-white px-2 py-0.5 rounded border border-blue-200">
+                      Chip: NXP NTAG216 (888 bytes)
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-700 pt-1">
+                    {packingSlipOrder.customer.googleReviewUrl && (
+                      <div className="p-2 bg-white rounded border border-blue-200">
+                        <span className="font-bold text-slate-900 block text-[11px]">Google Review URL (Bordskilt):</span>
+                        <span className="font-mono text-[10px] break-all text-blue-700 font-medium">
+                          {packingSlipOrder.customer.googleReviewUrl}
+                        </span>
+                      </div>
+                    )}
+                    {packingSlipOrder.customer.menuUrl && (
+                      <div className="p-2 bg-white rounded border border-amber-200">
+                        <span className="font-bold text-slate-900 block text-[11px]">Meny URL (Menykort):</span>
+                        <span className="font-mono text-[10px] break-all text-amber-800 font-medium">
+                          {packingSlipOrder.customer.menuUrl}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* ORDER ITEMS TABLE */}
+                <div className="space-y-2 text-xs">
+                  <h4 className="font-bold uppercase tracking-wider text-slate-800 text-[11px]">
+                    Varer som skal pakkes:
+                  </h4>
+                  <table className="w-full text-left border-collapse border border-slate-200">
+                    <thead>
+                      <tr className="bg-slate-100 text-slate-700 border-b border-slate-200">
+                        <th className="p-2.5 font-bold w-12 text-center">Sjekk</th>
+                        <th className="p-2.5 font-bold">Varebeskrivelse</th>
+                        <th className="p-2.5 font-bold w-20 text-center">Antall</th>
+                        <th className="p-2.5 font-bold w-24 text-right">Enhetspris</th>
+                        <th className="p-2.5 font-bold w-24 text-right">Sum</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {packingSlipOrder.items.map((item, idx) => (
+                        <tr key={idx} className="border-b border-slate-200 text-slate-800">
+                          <td className="p-2.5 text-center">
+                            <span className="inline-block w-4 h-4 border-2 border-slate-400 rounded-xs"></span>
+                          </td>
+                          <td className="p-2.5">
+                            <p className="font-bold text-slate-900">{item.product.name}</p>
+                            <p className="text-[10px] text-slate-500">{item.product.material} · {item.product.dimensions}</p>
+                          </td>
+                          <td className="p-2.5 text-center font-bold font-mono text-sm">{item.quantity} stk</td>
+                          <td className="p-2.5 text-right font-mono">{item.product.price} kr</td>
+                          <td className="p-2.5 text-right font-mono font-bold">{item.product.price * item.quantity} kr</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="border-t border-slate-200">
+                        <td colSpan={4} className="p-2 text-right text-slate-600">Delsum:</td>
+                        <td className="p-2 text-right font-mono font-semibold">{packingSlipOrder.subtotal} kr</td>
+                      </tr>
+                      {packingSlipOrder.discountAmount > 0 && (
+                        <tr>
+                          <td colSpan={4} className="p-2 text-right text-emerald-700 font-semibold">Bulk deal rabatt:</td>
+                          <td className="p-2 text-right font-mono font-bold text-emerald-700">-{packingSlipOrder.discountAmount} kr</td>
+                        </tr>
+                      )}
+                      <tr>
+                        <td colSpan={4} className="p-2 text-right text-slate-600">Frakt (Posten):</td>
+                        <td className="p-2 text-right font-mono font-semibold">
+                          {packingSlipOrder.shippingFee === 0 ? '0 kr (Gratis)' : `${packingSlipOrder.shippingFee} kr`}
+                        </td>
+                      </tr>
+                      <tr className="border-t-2 border-slate-900 font-black text-sm text-slate-900">
+                        <td colSpan={4} className="p-2.5 text-right">Total:</td>
+                        <td className="p-2.5 text-right font-mono text-blue-600">{packingSlipOrder.total} kr</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+
+                {/* SIGN-OFF & UB GREETING */}
+                <div className="pt-2 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-600 gap-4">
+                  <div className="space-y-1">
+                    <p className="font-semibold text-slate-800">
+                      Tusen takk for at du støtter NFC Review Ungdomsbedrift!
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      Vi håper disse skiltene gir bedriften din en jevn strøm av nye 5-stjerners anmeldelser.
+                    </p>
+                  </div>
+                  <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-center text-[10px] text-slate-500 w-full sm:w-56">
+                    <p className="font-bold text-slate-700">Kvalitetskontrollert av:</p>
+                    <div className="h-6 border-b border-slate-300 my-1"></div>
+                    <p>Dato / Signatur</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Print Button */}
+              <div className="pt-4 border-t border-slate-200 flex justify-end gap-2.5 print:hidden">
+                <button
+                  type="button"
+                  onClick={() => setPackingSlipOrder(null)}
+                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
+                >
+                  Lukk
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Skriv ut pakkeseddel</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Email Template Preview & Customization Popup */}
         {previewOrder && (
-          <div className="fixed inset-0 z-60 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setPreviewOrder(null);
+              }
+            }}
+            className="fixed inset-0 z-60 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 touch-manipulation"
+            role="dialog"
+            aria-modal="true"
+          >
             <div className="bg-white rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-150">
               <div className="flex items-center justify-between pb-3 border-b border-slate-200">
                 <div className="flex items-center space-x-2.5">
@@ -832,7 +1361,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                 </div>
                 <button
                   onClick={() => setPreviewOrder(null)}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100"
+                  className="p-2 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
                   aria-label="Lukk forhåndsvisning"
                 >
                   <X className="w-5 h-5" />

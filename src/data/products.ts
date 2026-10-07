@@ -273,6 +273,14 @@ export const FAQS = [
     answer: 'Vi forhåndsprogrammerer og pakker bestillinger innen 24-48 timer. Pakken sendes med Posten/Bring fra Norge, så du mottar normalt bestillingen i løpet av 2-4 virkedager. Fri frakt ved bestilling over 500 kr.'
   },
   {
+    question: 'Hvordan fungerer betalingen?',
+    answer: 'Du betaler enkelt og trygt med kort (Visa, Mastercard) eller Vipps. Det er 0 kr i ekstra gebyrer og ingen løpende abonnementer. Så snart bestillingen er lagt inn, koder og kvalitetstester vår ungdomsbedrift produktene dine før de sendes direkte med Posten.'
+  },
+  {
+    question: 'Hvordan finner jeg min bedrifts direkte Google Review-lenke?',
+    answer: 'I kassen finner du en praktisk 3-stegs visuell veileder med direktesnarvei: 1) Søk på ditt bedriftsnavn på Google, 2) Trykk på «Be om anmeldelser», 3) Kopiér lenken inn i kassen. Er du usikker eller har dårlig tid, skriver du bare inn bedriftsnavnet og byen din, så finner og kvalitetssikrer vi den offisielle anmeldelseslenken for deg!'
+  },
+  {
     question: 'Kan jeg endre Google-lenken senere hvis bedriften flytter?',
     answer: 'Ja, absolutt! Hvis bedriften din flytter, bytter navn eller får ny lenke, er det bare å kontakte oss for støtte – vi hjelper deg gjerne med re-programmering og personlig oppfølging. Du kan også enkelt bruke en gratis NFC-verktøy-app (f.eks. NFC Tools på App Store eller Google Play) for å oppdatere URL-en selv på sekunder.'
   }

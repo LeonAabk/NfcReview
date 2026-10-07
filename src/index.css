@@ -27,3 +27,30 @@
 .animate-pulse-glow {
   animation: pulseGlow 3s ease-in-out infinite;
 }
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Hide everything except the packing slip content during print */
+  .fixed:has(#packing-slip-content) {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .fixed:has(#packing-slip-content) > div {
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+}

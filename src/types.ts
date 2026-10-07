@@ -22,6 +22,8 @@ export interface CartItem {
   targetUrl?: string; // Review link or Menu link
 }
 
+export type PaymentMethod = 'vipps_card' | 'invoice_ehf';
+
 export interface CustomerOrderData {
   companyName: string;
   orgNumber?: string;
@@ -34,9 +36,19 @@ export interface CustomerOrderData {
   googleReviewUrl?: string; // Link for Google Review Bordskilt
   menuUrl?: string; // Link for Meny-kort
   notes?: string;
+  paymentMethod?: PaymentMethod;
+  invoiceReference?: string; // EHF referanse / Bestillerreferanse
+  invoiceEmail?: string; // Eget fakturamottak
 }
 
 export type OrderStatus = 'ny' | 'behandles' | 'sendt' | 'fullfort';
+
+export interface OrderChecklist {
+  programmedChip: boolean; // 1. Brikke programmert
+  qrTested: boolean; // 2. QR-kode testet med mobil
+  packed: boolean; // 3. Pakket
+  shipped: boolean; // 4. Sendt
+}
 
 export interface OrderRecord {
   orderId: string;
@@ -50,6 +62,7 @@ export interface OrderRecord {
   customer: CustomerOrderData;
   trackingNumber?: string;
   adminNotes?: string;
+  checklist?: OrderChecklist;
 }
 
 
