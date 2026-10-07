@@ -27,7 +27,12 @@ export default function App() {
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
       const saved = localStorage.getItem(CART_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .filter((item) => item && item.product && typeof item.quantity === 'number' && item.quantity > 0)
+        .map((item) => ({ ...item, quantity: Math.min(99, Math.max(1, Math.floor(item.quantity))) }));
     } catch {
       return [];
     }
@@ -48,6 +53,7 @@ export default function App() {
   }, [cartItems]);
 
   const handleAddToCart = (product: Product, quantity = 1, targetUrl?: string) => {
+    const validQty = Math.min(99, Math.max(1, Math.floor(quantity)));
     setCartItems((prev) => {
       const existingIdx = prev.findIndex(
         (item) => item.product.id === product.id && (item.targetUrl || '') === (targetUrl || '')
@@ -57,12 +63,12 @@ export default function App() {
         const next = [...prev];
         next[existingIdx] = {
           ...next[existingIdx],
-          quantity: next[existingIdx].quantity + quantity
+          quantity: Math.min(99, next[existingIdx].quantity + validQty)
         };
         return next;
       }
 
-      return [...prev, { product, quantity, targetUrl }];
+      return [...prev, { product, quantity: validQty, targetUrl }];
     });
     setIsCartOpen(true);
   };
@@ -73,10 +79,12 @@ export default function App() {
       return;
     }
 
+    const validQty = Math.min(99, Math.max(1, Math.floor(quantity)));
+
     setCartItems((prev) =>
       prev.map((item) => {
         if (item.product.id === productId && (item.targetUrl || '') === (targetUrl || '')) {
-          return { ...item, quantity };
+          return { ...item, quantity: validQty };
         }
         return item;
       })

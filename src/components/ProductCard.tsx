@@ -3,6 +3,8 @@ import { Product } from '../types';
 import { ProductVisual } from './ProductVisual';
 import { Check, ShoppingBag, Plus, Minus } from 'lucide-react';
 
+import { sanitizeText } from '../utils/security';
+
 interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product, quantity: number, targetUrl?: string) => void;
@@ -14,7 +16,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
   const [isAddedFeedback, setIsAddedFeedback] = useState(false);
 
   const handleAdd = () => {
-    onAddToCart(product, quantity, targetUrl.trim() || undefined);
+    const cleanUrl = sanitizeText(targetUrl.trim());
+    onAddToCart(product, Math.min(99, Math.max(1, quantity)), cleanUrl || undefined);
     setIsAddedFeedback(true);
     setTimeout(() => setIsAddedFeedback(false), 1600);
   };
@@ -128,7 +131,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
           </span>
           <button
             type="button"
-            onClick={() => setQuantity(quantity + 1)}
+            onClick={() => setQuantity(Math.min(99, quantity + 1))}
             className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-white hover:shadow-xs transition-colors active:scale-95 touch-manipulation"
             aria-label="Øk antall"
           >

@@ -7,7 +7,9 @@ export function getStoredOrders(): OrderRecord[] {
   try {
     const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
     if (!raw) return [];
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((o) => o && typeof o === 'object' && typeof o.orderId === 'string');
   } catch (err) {
     console.error('Feil ved henting av ordre:', err);
     return [];
@@ -76,36 +78,47 @@ E-post: ${customer.email}`;
 }
 
 /**
- * Creates a mailto link to send a shipping update with Posten tracking link to customer
+ * Returns clean email subject line for customer shipping notification
  */
-export function generateCustomerShippingEmail(order: OrderRecord): string {
-  const subject = encodeURIComponent(`Ordre #${order.orderId} er programmert og sendt med Posten! – NFC Review UB`);
+export function getCustomerShippingEmailSubject(order: OrderRecord): string {
+  return `Ordre #${order.orderId} er programmert og sendt med Posten! – NFC Review UB`;
+}
+
+/**
+ * Returns clean plain text email body ready to be copied into Gmail / Outlook
+ */
+export function getCustomerShippingEmailBody(order: OrderRecord): string {
   const trackingText = order.trackingNumber
-    ? `Spor pakken din hos Posten her:\nhttps://sporing.posten.no/sporing/${order.trackingNumber.trim()}\nSporingsnummer: ${order.trackingNumber}\n\n`
+    ? `Spor pakken din hos Posten her:\nhttps://sporing.posten.no/sporing/${order.trackingNumber.trim()}\nSporingsnummer: ${order.trackingNumber.trim()}\n\n`
     : `Pakken din er sendt med Posten som Norgespakke og leveres normalt i løpet av 2-4 virkedager.\n\n`;
 
-  const body = encodeURIComponent(
-    `Hei ${order.customer.contactPerson || order.customer.companyName}!
+  return `Hei ${order.customer.contactPerson || order.customer.companyName}!
 
-Gode nyheter! Din bestilling #${order.orderId} er ferdig programmert og testet av vår ungdomsbedrift, og er nå overlevert til Posten.
+Gode nyheter! Din bestilling #${order.orderId} er ferdig programmert og kvalitetstestet av vår ungdomsbedrift, og er nå overlevert til Posten.
 
 ${trackingText}Bestillingssammendrag:
 Bedrift: ${order.customer.companyName}
 Leveringsadresse: ${order.customer.address}, ${order.customer.postalCode} ${order.customer.city}
 ${order.customer.googleReviewUrl ? `Google Review-lenke: ${order.customer.googleReviewUrl}\n` : ''}${order.customer.menuUrl ? `Meny-lenke: ${order.customer.menuUrl}\n` : ''}
-Artikler:
+Bestilte varer:
 ${order.items.map((i) => `- ${i.quantity}x ${i.product.name}`).join('\n')}
 Totalsum: ${order.total} kr
 
-Kortene er 100% klare til bruk rett ut av esken – det er bare å plassere dem på disken eller bordene!
+Kortene og bordskiltene er 100% klare til bruk rett ut av esken – det er bare å plassere dem på disken eller bordene!
 
-Tusen takk for at du støtter vår ungdomsbedrift! Ta gjerne kontakt med oss på ${STORE_NOTIFICATION_EMAIL} hvis du har spørsmål.
+Tusen takk for at du støtter vår ungdomsbedrift! Ta gjerne kontakt med oss på ${STORE_NOTIFICATION_EMAIL} hvis du lurer på noe.
 
 Med vennlig hilsen,
 NFC Review UB (Ungdomsbedrift)
-E-post: ${STORE_NOTIFICATION_EMAIL}`
-  );
+E-post: ${STORE_NOTIFICATION_EMAIL}`;
+}
 
+/**
+ * Creates a mailto link to send a shipping update with Posten tracking link to customer
+ */
+export function generateCustomerShippingEmail(order: OrderRecord): string {
+  const subject = encodeURIComponent(getCustomerShippingEmailSubject(order));
+  const body = encodeURIComponent(getCustomerShippingEmailBody(order));
   return `mailto:${order.customer.email}?subject=${subject}&body=${body}`;
 }
 

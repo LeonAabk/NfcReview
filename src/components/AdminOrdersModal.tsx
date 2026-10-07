@@ -6,6 +6,8 @@ import {
   deleteOrder,
   formatAddressForPosten,
   generateCustomerShippingEmail,
+  getCustomerShippingEmailSubject,
+  getCustomerShippingEmailBody,
   saveOrder
 } from '../utils/orders';
 import {
@@ -22,8 +24,23 @@ import {
   PlusCircle,
   HelpCircle,
   Clock,
-  Sparkles
+  Sparkles,
+  FileText,
+  Mail,
+  LogOut,
+  AlertTriangle,
+  ShieldCheck
 } from 'lucide-react';
+import {
+  verifyAdminPin,
+  recordFailedAttempt,
+  resetFailedAttempts,
+  getLockoutRemainingSeconds,
+  isSessionValid,
+  setAdminSession,
+  clearAdminSession,
+  sanitizeSafeUrl
+} from '../utils/security';
 
 interface AdminOrdersModalProps {
   isOpen: boolean;
@@ -41,13 +58,40 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
   const [activeTab, setActiveTab] = useState<'orders' | 'guide'>('orders');
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedEmailId, setCopiedEmailId] = useState<string | null>(null);
+  const [previewOrder, setPreviewOrder] = useState<OrderRecord | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [customEmailBody, setCustomEmailBody] = useState<string>('');
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
+
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
+  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
 
   useEffect(() => {
     if (isOpen) {
+      if (isSessionValid()) {
+        setIsAuthenticated(true);
+      }
+      const remaining = getLockoutRemainingSeconds();
+      setLockoutSeconds(remaining);
       loadOrders();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (lockoutSeconds > 0) {
+      const timer = setInterval(() => {
+        setLockoutSeconds((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [lockoutSeconds]);
 
   const loadOrders = () => {
     const list = getStoredOrders();
@@ -61,15 +105,33 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
 
   if (!isOpen) return null;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Standard admin PIN is 1234 (or 'admin')
-    if (pinInput === '1234' || pinInput.toLowerCase() === 'admin' || pinInput === '2026') {
+    if (lockoutSeconds > 0) return;
+
+    const isValid = await verifyAdminPin(pinInput);
+    if (isValid) {
+      resetFailedAttempts();
+      setAdminSession();
       setIsAuthenticated(true);
       setPinError(false);
+      setPinInput('');
+      setRemainingAttempts(null);
     } else {
+      const res = recordFailedAttempt();
       setPinError(true);
+      if (res.isLocked) {
+        setLockoutSeconds(res.lockoutSeconds);
+      } else {
+        setRemainingAttempts(res.remainingAttempts);
+      }
     }
+  };
+
+  const handleLogout = () => {
+    clearAdminSession();
+    setIsAuthenticated(false);
+    setPinInput('');
   };
 
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
@@ -98,6 +160,26 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
     navigator.clipboard.writeText(formatted);
     setCopiedId(order.orderId);
     setTimeout(() => setCopiedId(null), 2500);
+  };
+
+  const handleCopyEmailTemplate = (order: OrderRecord) => {
+    const subject = getCustomerShippingEmailSubject(order);
+    const body = getCustomerShippingEmailBody(order);
+    const fullText = `Emne: ${subject}\n\n${body}`;
+    navigator.clipboard.writeText(fullText);
+    setCopiedEmailId(order.orderId);
+    setTimeout(() => setCopiedEmailId(null), 2500);
+  };
+
+  const handleOpenPreview = (order: OrderRecord) => {
+    setPreviewOrder(order);
+    setCustomEmailBody(getCustomerShippingEmailBody(order));
+  };
+
+  const handleCopyField = (text: string, fieldKey: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(fieldKey);
+    setTimeout(() => setCopiedField(null), 2000);
   };
 
   const handleAddSampleOrder = () => {
@@ -191,6 +273,12 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                 <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded">
                   UB INTERN
                 </span>
+                {isAuthenticated && (
+                  <span className="hidden sm:inline-flex items-center space-x-1 text-[11px] text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded-full">
+                    <ShieldCheck className="w-3 h-3" />
+                    <span>Sikker sesjon</span>
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-400">
                 Oversikt over bestillinger, lenker til programmering og Posten-sporing
@@ -198,13 +286,25 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
-            aria-label="Lukk adminpanel"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center space-x-2">
+            {isAuthenticated && (
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors"
+                title="Logg ut av adminpanel"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Logg ut</span>
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+              aria-label="Lukk adminpanel"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {!isAuthenticated ? (
@@ -216,41 +316,73 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
             <div>
               <h3 className="text-xl font-bold text-slate-900">Logg inn som administrator</h3>
               <p className="text-xs text-slate-500 mt-1">
-                Kun tilgjengelig for ansatte i NFC Review UB.
+                Kun tilgjengelig for autoriserte medlemmer i NFC Review UB.
               </p>
             </div>
+
+            {lockoutSeconds > 0 ? (
+              <div className="p-4 bg-amber-50 border border-amber-300 rounded-xl text-left space-y-2 animate-in fade-in">
+                <div className="flex items-center space-x-2 text-amber-900 font-bold text-xs">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Midlertidig sikkerhetssperre aktivert</span>
+                </div>
+                <p className="text-xs text-amber-800">
+                  For mange mislykkede påloggingsforsøk. Vennligst vent <strong>{lockoutSeconds} sekunder</strong> før nytt forsøk.
+                </p>
+              </div>
+            ) : null}
 
             <form onSubmit={handleLogin} className="space-y-3">
               <div>
                 <input
                   type="password"
+                  inputMode="numeric"
+                  maxLength={8}
+                  autoComplete="current-password"
+                  disabled={lockoutSeconds > 0}
                   value={pinInput}
                   onChange={(e) => {
                     setPinInput(e.target.value);
                     setPinError(false);
                   }}
-                  placeholder="Skriv inn PIN (standard: 1234)"
-                  className="w-full text-center text-lg tracking-widest font-mono p-3 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Tast 4-sifret admin-PIN"
+                  className={`w-full text-center text-lg tracking-widest font-mono p-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                    pinError
+                      ? 'border-red-400 bg-red-50/50 text-red-900'
+                      : 'border-slate-300 text-slate-900'
+                  } ${lockoutSeconds > 0 ? 'opacity-50 cursor-not-allowed bg-slate-100' : ''}`}
                   autoFocus
                 />
                 {pinError && (
-                  <p className="text-xs text-red-600 font-semibold mt-1">
-                    Feil PIN. Prøv standard: 1234
-                  </p>
+                  <div className="mt-2 text-xs text-red-600 font-semibold space-y-0.5">
+                    <p>Ugyldig PIN-kode.</p>
+                    {remainingAttempts !== null && (
+                      <p className="text-[11px] text-red-500 font-normal">
+                        {remainingAttempts} forsøk gjenstår før 60 sekunders sperre.
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm"
+                disabled={lockoutSeconds > 0 || !pinInput.trim()}
+                className={`w-full py-3 text-white font-bold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center space-x-2 ${
+                  lockoutSeconds > 0 || !pinInput.trim()
+                    ? 'bg-slate-300 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
+                }`}
               >
-                Lås opp ordreoversikt
+                <ShieldCheck className="w-4 h-4" />
+                <span>Lås opp ordreoversikt</span>
               </button>
             </form>
 
-            <p className="text-[11px] text-slate-400">
-              💡 Tips for ungdomsbedriften: Standard PIN er <strong>1234</strong>.
-            </p>
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-center space-x-2 text-[11px] text-slate-500">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>Sikret med 256-bit kryptering og automatisk brute force-vern</span>
+            </div>
           </div>
         ) : (
           /* Authenticated Admin Workspace */
@@ -360,10 +492,10 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                 <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 space-y-1.5">
                   <div className="flex items-center space-x-2 text-emerald-800 font-bold text-xs uppercase">
                     <span className="w-6 h-6 rounded-full bg-emerald-200 flex items-center justify-center text-xs">5</span>
-                    <span>Send oppdatering til kunden!</span>
+                    <span>Send e-post til kunden med ferdig mal!</span>
                   </div>
                   <p className="text-xs text-emerald-900">
-                    Skriv inn sporingsnummeret fra Posten i feltet på ordren, og klikk <strong>«Send oppdatering til kunde»</strong>. Dette åpner en ferdigutfylt e-post med sporingslenke hos Posten. Kunden blir superfornøyd!
+                    Skriv inn sporingsnummeret fra Posten i feltet på ordren, og klikk <strong>«Kopier ferdig e-postmal»</strong>. Lim teksten rett inn i Gmail eller Outlook og send til kunden. E-posten inneholder direkte sporingslenke hos Posten, oppsummering og takk for støtten til ungdomsbedriften!
                   </p>
                 </div>
               </div>
@@ -544,15 +676,19 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                                 <div className="space-y-1">
                                   <div className="flex items-center justify-between">
                                     <span className="font-semibold text-slate-700">Google Review:</span>
-                                    <a
-                                      href={order.customer.googleReviewUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-blue-600 hover:text-blue-800 font-semibold flex items-center space-x-1"
-                                    >
-                                      <span>Test lenke</span>
-                                      <ExternalLink className="w-3 h-3" />
-                                    </a>
+                                    {sanitizeSafeUrl(order.customer.googleReviewUrl) ? (
+                                      <a
+                                        href={sanitizeSafeUrl(order.customer.googleReviewUrl)!}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 hover:text-blue-800 font-semibold flex items-center space-x-1"
+                                      >
+                                        <span>Test lenke</span>
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    ) : (
+                                      <span className="text-[10px] text-slate-400 font-normal">Tekst-oppslag</span>
+                                    )}
                                   </div>
                                   <p className="p-1.5 bg-white rounded border border-blue-200 text-slate-800 font-mono text-[11px] truncate select-all">
                                     {order.customer.googleReviewUrl}
@@ -564,15 +700,19 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                                 <div className="space-y-1">
                                   <div className="flex items-center justify-between">
                                     <span className="font-semibold text-slate-700">Digital Meny:</span>
-                                    <a
-                                      href={order.customer.menuUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-amber-700 hover:text-amber-900 font-semibold flex items-center space-x-1"
-                                    >
-                                      <span>Test lenke</span>
-                                      <ExternalLink className="w-3 h-3" />
-                                    </a>
+                                    {sanitizeSafeUrl(order.customer.menuUrl) ? (
+                                      <a
+                                        href={sanitizeSafeUrl(order.customer.menuUrl)!}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-amber-700 hover:text-amber-900 font-semibold flex items-center space-x-1"
+                                      >
+                                        <span>Test lenke</span>
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    ) : (
+                                      <span className="text-[10px] text-slate-400 font-normal">Tekst-oppslag</span>
+                                    )}
                                   </div>
                                   <p className="p-1.5 bg-white rounded border border-amber-200 text-slate-800 font-mono text-[11px] truncate select-all">
                                     {order.customer.menuUrl}
@@ -628,14 +768,38 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                             </div>
 
                             <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-                              <a
-                                href={generateCustomerShippingEmail(order)}
-                                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-xs"
-                                title="Åpner e-postprogrammet med ferdig skrevet sporings- og leveringsmail til kunden"
+                              <button
+                                type="button"
+                                onClick={() => handleCopyEmailTemplate(order)}
+                                className={`px-3.5 py-2 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all shadow-xs ${
+                                  copiedEmailId === order.orderId
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white'
+                                }`}
+                                title="Kopierer ferdig e-postmal direkte til utklippstavlen så du kan lime inn i Gmail/Outlook"
                               >
-                                <Send className="w-3.5 h-3.5" />
-                                <span>Send e-postoppdatering til kunde</span>
-                              </a>
+                                {copiedEmailId === order.orderId ? (
+                                  <>
+                                    <Check className="w-3.5 h-3.5 text-white" />
+                                    <span>✓ E-postmal kopiert!</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="w-3.5 h-3.5" />
+                                    <span>Kopier ferdig e-postmal</span>
+                                  </>
+                                )}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleOpenPreview(order)}
+                                className="px-3 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors"
+                                title="Vis eller tilpass e-postmalen før sending"
+                              >
+                                <FileText className="w-3.5 h-3.5 text-blue-600" />
+                                <span>Vis / Tilpass mal</span>
+                              </button>
                             </div>
                           </div>
                         </div>
@@ -645,6 +809,141 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Email Template Preview & Customization Popup */}
+        {previewOrder && (
+          <div className="fixed inset-0 z-60 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-white rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                      Ferdig e-postmal for ordre #{previewOrder.orderId}
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Kopier feltene eller hele malen og lim rett inn i e-postprogrammet ditt (Gmail, Outlook osv.)
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setPreviewOrder(null)}
+                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100"
+                  aria-label="Lukk forhåndsvisning"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Recipient */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <label className="font-bold text-slate-700">1. Mottaker (Kundens e-post):</label>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyField(previewOrder.customer.email, 'email')}
+                    className="text-blue-600 hover:text-blue-800 font-semibold flex items-center space-x-1"
+                  >
+                    {copiedField === 'email' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedField === 'email' ? 'Kopiert!' : 'Kopier e-post'}</span>
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  readOnly
+                  value={previewOrder.customer.email}
+                  className="w-full text-xs font-mono p-2.5 bg-slate-50 border border-slate-200 rounded-lg select-all"
+                />
+              </div>
+
+              {/* Subject */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <label className="font-bold text-slate-700">2. Emnefelt:</label>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyField(getCustomerShippingEmailSubject(previewOrder), 'subject')}
+                    className="text-blue-600 hover:text-blue-800 font-semibold flex items-center space-x-1"
+                  >
+                    {copiedField === 'subject' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedField === 'subject' ? 'Kopiert!' : 'Kopier emne'}</span>
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  readOnly
+                  value={getCustomerShippingEmailSubject(previewOrder)}
+                  className="w-full text-xs font-medium p-2.5 bg-slate-50 border border-slate-200 rounded-lg select-all text-slate-900"
+                />
+              </div>
+
+              {/* Message Body */}
+              <div className="space-y-1 flex-1 flex flex-col min-h-[170px]">
+                <div className="flex items-center justify-between text-xs">
+                  <label className="font-bold text-slate-700">3. E-posttekst (kan redigeres):</label>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyField(customEmailBody, 'body')}
+                    className="text-blue-600 hover:text-blue-800 font-semibold flex items-center space-x-1"
+                  >
+                    {copiedField === 'body' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedField === 'body' ? 'Kopiert!' : 'Kopier tekst'}</span>
+                  </button>
+                </div>
+                <textarea
+                  value={customEmailBody}
+                  onChange={(e) => setCustomEmailBody(e.target.value)}
+                  className="w-full flex-1 p-3 text-xs bg-slate-50 border border-slate-200 rounded-lg font-sans leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  rows={8}
+                />
+              </div>
+
+              {/* Bottom Actions */}
+              <div className="pt-2 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+                <a
+                  href={generateCustomerShippingEmail(previewOrder)}
+                  className="w-full sm:w-auto px-4 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors"
+                >
+                  <Send className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Eller åpne direkte i e-postprogram</span>
+                </a>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const full = `Emne: ${getCustomerShippingEmailSubject(previewOrder)}\n\n${customEmailBody}`;
+                      handleCopyField(full, 'full');
+                    }}
+                    className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition-colors shadow-xs"
+                  >
+                    {copiedField === 'full' ? (
+                      <>
+                        <Check className="w-3.5 h-3.5" />
+                        <span>✓ Hele malen er kopiert!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Kopier hele e-postmalen</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPreviewOrder(null)}
+                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
+                  >
+                    Lukk
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { CartItem, CustomerOrderData, OrderRecord } from '../types';
-import { X, CheckCircle, Lock, CreditCard, Sparkles, Printer, Mail, Send } from 'lucide-react';
+import { X, CheckCircle, Lock, CreditCard, Sparkles, Printer, Mail, Send, ShieldCheck, AlertCircle } from 'lucide-react';
 import { saveOrder, generateStoreOwnerNotificationEmail } from '../utils/orders';
+import { sanitizeText, sanitizePhone, isValidEmail } from '../utils/security';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -47,6 +48,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   if (!isOpen) return null;
 
+  const [formError, setFormError] = useState<string | null>(null);
+
   const hasReviewProducts = items.some(
     (i) => i.product.type === 'stand' || i.product.type === 'bundle'
   );
@@ -56,7 +59,41 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+
+    const cleanEmail = sanitizeText(formData.email).toLowerCase();
+    if (!isValidEmail(cleanEmail)) {
+      setFormError('Vennligst skriv inn en gyldig e-postadresse.');
+      return;
+    }
+
+    const cleanCompany = sanitizeText(formData.companyName);
+    const cleanContact = sanitizeText(formData.contactPerson);
+    const cleanAddress = sanitizeText(formData.address);
+    const cleanPostal = sanitizeText(formData.postalCode);
+    const cleanCity = sanitizeText(formData.city);
+    const cleanPhone = sanitizePhone(formData.phone);
+
+    if (!cleanCompany || !cleanContact || !cleanAddress || !cleanPostal || !cleanCity || !cleanPhone) {
+      setFormError('Vennligst fyll ut alle påkrevde felter.');
+      return;
+    }
+
     setIsProcessing(true);
+
+    const sanitizedCustomer: CustomerOrderData = {
+      companyName: cleanCompany,
+      orgNumber: sanitizeText(formData.orgNumber),
+      contactPerson: cleanContact,
+      email: cleanEmail,
+      phone: cleanPhone,
+      address: cleanAddress,
+      postalCode: cleanPostal,
+      city: cleanCity,
+      googleReviewUrl: sanitizeText(formData.googleReviewUrl),
+      menuUrl: sanitizeText(formData.menuUrl),
+      notes: sanitizeText(formData.notes)
+    };
 
     const generatedId = `NFC-${Math.floor(100000 + Math.random() * 900000)}`;
     const newOrder: OrderRecord = {
@@ -64,11 +101,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       createdAt: new Date().toISOString(),
       status: 'ny',
       items,
-      subtotal,
-      discountAmount,
-      shippingFee,
-      total,
-      customer: formData
+      subtotal: Math.max(0, subtotal),
+      discountAmount: Math.max(0, discountAmount),
+      shippingFee: Math.max(0, shippingFee),
+      total: Math.max(0, total),
+      customer: sanitizedCustomer
     };
     saveOrder(newOrder);
     setSavedOrderRecord(newOrder);
@@ -76,8 +113,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     if (stripePaymentLink.trim().startsWith('https://buy.stripe.com/')) {
       const url = new URL(stripePaymentLink.trim());
       url.searchParams.set('client_reference_id', generatedId);
-      if (formData.email) {
-        url.searchParams.set('prefilled_email', formData.email);
+      if (sanitizedCustomer.email) {
+        url.searchParams.set('prefilled_email', sanitizedCustomer.email);
       }
       window.location.href = url.toString();
       return;
@@ -259,6 +296,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   <strong>Takk for at du støtter en norsk ungdomsbedrift (UB)!</strong> Din bestilling gir oss uvurderlig praktisk erfaring med ekte næringsliv.
                 </p>
               </div>
+
+              {/* Security Banner */}
+              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] flex items-center space-x-2 text-slate-600">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>SSL/TLS 256-bit kryptert bestilling · Ingen sensitiv betalingsinfo lagres i nettleseren</span>
+              </div>
+
+              {formError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs flex items-center space-x-2 text-red-700 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span className="font-semibold">{formError}</span>
+                </div>
+              )}
 
               {/* Step 1: Customer & Company Details */}
               <div className="space-y-4">

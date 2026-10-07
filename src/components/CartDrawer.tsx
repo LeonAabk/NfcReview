@@ -198,7 +198,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1, item.targetUrl)}
+                          onClick={() => onUpdateQuantity(item.product.id, Math.min(99, item.quantity + 1), item.targetUrl)}
                           className="w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center text-slate-500 hover:text-slate-800 touch-manipulation active:bg-slate-100 rounded-r-lg"
                           aria-label="Øk antall"
                         >
