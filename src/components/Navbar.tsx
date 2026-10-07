@@ -34,7 +34,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-black shadow-sm group-hover:bg-blue-700 transition-colors">
             ★
           </span>
-          <span className="font-extrabold">NFC Review<span className="text-blue-600">.no</span></span>
+          <div className="flex flex-col">
+            <div className="flex items-center space-x-1.5">
+              <span className="font-extrabold text-lg sm:text-xl">NFC Review<span className="text-blue-600">.no</span></span>
+              <span className="bg-amber-100 text-amber-900 text-[10px] font-black px-1.5 py-0.5 rounded border border-amber-300">UB</span>
+            </div>
+            <span className="text-[10px] font-medium text-slate-500 hidden sm:inline -mt-1">Ungdomsbedrift</span>
+          </div>
         </a>
 
         {/* Zone 2: Clean 4-6 text navigation links */}
@@ -50,6 +56,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             Hjem
           </a>
           <a
+            href="#products"
+            onClick={(e) => {
+              e.preventDefault();
+              handleLinkClick('products');
+            }}
+            className="hover:text-blue-600 transition-colors"
+          >
+            Produkter
+          </a>
+          <a
             href="#how-it-works"
             onClick={(e) => {
               e.preventDefault();
@@ -60,14 +76,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             Slik fungerer det
           </a>
           <a
-            href="#products"
+            href="#about-ub"
             onClick={(e) => {
               e.preventDefault();
-              handleLinkClick('products');
+              handleLinkClick('about-ub');
             }}
-            className="hover:text-blue-600 transition-colors"
+            className="text-amber-800 font-semibold hover:text-amber-900 transition-colors flex items-center space-x-1"
           >
-            Produkter
+            <span>Om oss (UB)</span>
           </a>
           <a
             href="#simulator"
@@ -138,16 +154,23 @@ export const Navbar: React.FC<NavbarProps> = ({
               Hjem
             </button>
             <button
+              onClick={() => handleLinkClick('products')}
+              className="text-left py-2 px-2 rounded-lg hover:bg-slate-50"
+            >
+              Produkter & Priser
+            </button>
+            <button
               onClick={() => handleLinkClick('how-it-works')}
               className="text-left py-2 px-2 rounded-lg hover:bg-slate-50"
             >
               Slik fungerer det
             </button>
             <button
-              onClick={() => handleLinkClick('products')}
-              className="text-left py-2 px-2 rounded-lg hover:bg-slate-50"
+              onClick={() => handleLinkClick('about-ub')}
+              className="text-left py-2 px-2 rounded-lg bg-amber-50 text-amber-900 font-semibold flex items-center justify-between"
             >
-              Produkter & Priser
+              <span>Om vår Ungdomsbedrift</span>
+              <span className="text-[10px] bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded font-bold">UB</span>
             </button>
             <button
               onClick={() => handleLinkClick('simulator')}

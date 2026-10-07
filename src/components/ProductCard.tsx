@@ -68,8 +68,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
           </div>
 
           {/* Volume Discount micro-badge */}
-          <div className="mb-4 flex items-center space-x-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-md">
-            <span>🎉 Kjøp 3+ valgfrie: få 10% rabatt</span>
+          <div className="mb-4 flex items-center space-x-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-md">
+            <span>🔥 Bulk deal: 10% ved 3+ · 15% ved 5+ · 20% ved 10+</span>
           </div>
 
           {/* Feature Bullets */}
@@ -86,7 +86,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
           <div className="mb-4 p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
             <label
               htmlFor={`url-input-${product.id}`}
-              className="block text-[11px] font-bold text-slate-800 mb-1"
+              className="block text-xs sm:text-[11px] font-bold text-slate-800 mb-1"
             >
               {isMenu
                 ? 'Din digitale meny-lenke (eller fylles ut i kassen):'
@@ -102,9 +102,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
                   ? 'F.eks. https://restaurant.no/meny eller PDF-lenke'
                   : 'F.eks. https://g.page/r/.../review eller firmanavn'
               }
-              className="w-full text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-slate-400 text-slate-800"
+              className="w-full text-base sm:text-xs py-2.5 px-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400 text-slate-800 min-h-[44px] sm:min-h-0"
             />
-            <p className="text-[10px] text-slate-500 mt-1">
+            <p className="text-[11px] sm:text-[10px] text-slate-500 mt-1.5 leading-snug">
               Vi forhåndskoder brikkene og QR-kodene før vi shipper til adressen din.
             </p>
           </div>
@@ -113,26 +113,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
 
       {/* Card Footer: Quantity + Add to Cart */}
       <div className="p-6 pt-0 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-3">
-        {/* Quantity Stepper */}
+        {/* Quantity Stepper (Mobile Touch Optimized) */}
         <div className="flex items-center justify-between border border-slate-200 rounded-xl bg-slate-50 p-1 w-full sm:w-28 shrink-0">
           <button
             type="button"
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-white hover:shadow-xs transition-colors"
+            className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-white hover:shadow-xs transition-colors active:scale-95 touch-manipulation"
             aria-label="Reduser antall"
           >
-            <Minus className="w-3.5 h-3.5" />
+            <Minus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
           </button>
-          <span className="text-xs font-semibold text-slate-800 font-mono tabular-nums px-2">
+          <span className="text-sm sm:text-xs font-bold text-slate-800 font-mono tabular-nums px-3">
             {quantity}
           </span>
           <button
             type="button"
             onClick={() => setQuantity(quantity + 1)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-white hover:shadow-xs transition-colors"
+            className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-white hover:shadow-xs transition-colors active:scale-95 touch-manipulation"
             aria-label="Øk antall"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
           </button>
         </div>
 
@@ -140,7 +140,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         <button
           type="button"
           onClick={handleAdd}
-          className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 transition-all shadow-xs ${
+          className={`w-full py-3.5 sm:py-2.5 px-4 min-h-[44px] rounded-xl text-xs sm:text-xs font-bold flex items-center justify-center space-x-2 transition-all shadow-xs touch-manipulation ${
             isAddedFeedback
               ? 'bg-emerald-600 text-white'
               : 'bg-slate-900 hover:bg-slate-800 text-white active:scale-[0.98]'

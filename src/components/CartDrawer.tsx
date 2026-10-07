@@ -1,6 +1,7 @@
 import React from 'react';
 import { CartItem } from '../types';
 import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck, ShoppingBag } from 'lucide-react';
+import { calculateBulkDiscount, FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from '../utils/discount';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -21,17 +22,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const FREE_SHIPPING_THRESHOLD = 600;
-  const STANDARD_SHIPPING_FEE = 59;
-  const DISCOUNT_THRESHOLD = 3;
-  const DISCOUNT_PERCENT = 10;
-
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
-  // Volume discount calculation (10% if 3+ items)
-  const hasVolumeDiscount = totalQuantity >= DISCOUNT_THRESHOLD;
-  const discountAmount = hasVolumeDiscount ? Math.round((subtotal * DISCOUNT_PERCENT) / 100) : 0;
+  // Tiered bulk discount calculation
+  const bulkDiscount = calculateBulkDiscount(totalQuantity, subtotal);
+  const hasVolumeDiscount = bulkDiscount.percent > 0;
+  const discountAmount = bulkDiscount.amount;
   const discountedSubtotal = subtotal - discountAmount;
 
   // Free shipping based on subtotal or discounted subtotal
@@ -39,7 +36,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const shippingFee = items.length === 0 ? 0 : isFreeShipping ? 0 : STANDARD_SHIPPING_FEE;
   const total = discountedSubtotal + shippingFee;
   const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - discountedSubtotal);
-  const remainingForDiscount = Math.max(0, DISCOUNT_THRESHOLD - totalQuantity);
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden" role="dialog" aria-modal="true">
@@ -49,20 +45,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300">
+      <div className="fixed inset-y-0 right-0 max-w-full flex sm:pl-10">
+        <div className="w-screen sm:max-w-md bg-white shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300">
           {/* Header */}
-          <div className="p-6 border-b border-slate-200 flex items-center justify-between">
+          <div className="p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <ShoppingBag className="w-5 h-5 text-blue-600" />
-              <h2 className="text-lg font-bold text-slate-900">Handlekurv</h2>
+              <h2 className="text-base sm:text-lg font-bold text-slate-900">Handlekurv</h2>
               <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-mono tabular-nums">
                 {totalQuantity} varer
               </span>
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
+              className="p-2 sm:p-2 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
               aria-label="Lukk handlekurv"
             >
               <X className="w-5 h-5" />
@@ -77,21 +73,28 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 : 'bg-blue-50/80 border-blue-200/80 text-blue-900'
             }`}>
               {hasVolumeDiscount ? (
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold flex items-center space-x-1.5">
-                    <span>🎉</span>
-                    <span>10% kvantumsrabatt aktivert ({totalQuantity} varer i kurven)</span>
-                  </span>
-                  <span className="font-bold text-emerald-700 font-mono tabular-nums">
-                    Sparer {discountAmount} kr
-                  </span>
+                <div className="space-y-0.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold flex items-center space-x-1.5">
+                      <span>🎉</span>
+                      <span>{bulkDiscount.tierLabel}</span>
+                    </span>
+                    <span className="font-bold text-emerald-700 font-mono tabular-nums">
+                      Sparer {discountAmount} kr
+                    </span>
+                  </div>
+                  {bulkDiscount.nextTier && (
+                    <p className="text-[11px] text-emerald-700 font-medium">
+                      Tips: Kjøp <strong>{bulkDiscount.nextTier.remaining} vare(r)</strong> til for <strong>{bulkDiscount.nextTier.percent}% bulk deal</strong>!
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
                   <span>
-                    Kjøp <strong>{remainingForDiscount} vare{remainingForDiscount > 1 ? 'r' : ''}</strong> til for å få <strong>10% rabatt</strong> på hele ordren!
+                    Kjøp <strong>{bulkDiscount.nextTier?.remaining} vare{(bulkDiscount.nextTier?.remaining || 0) > 1 ? 'r' : ''}</strong> til for å få <strong>10% bulk deal</strong>!
                   </span>
-                  <span className="text-[10px] uppercase font-bold text-blue-600 bg-white px-2 py-0.5 rounded">
+                  <span className="text-[10px] uppercase font-bold text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-200">
                     3+ STK
                   </span>
                 </div>
@@ -113,7 +116,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     </span>
                   )}
                 </span>
-                <span className="font-mono text-[11px] text-slate-500">Mål: 600 kr</span>
+                <span className="font-mono text-[11px] text-slate-500">Mål: {FREE_SHIPPING_THRESHOLD} kr</span>
               </div>
               <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                 <div
@@ -162,10 +165,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         </h4>
                         <button
                           onClick={() => onRemoveItem(item.product.id, item.targetUrl)}
-                          className="text-slate-400 hover:text-red-600 p-0.5 transition-colors ml-2"
+                          className="text-slate-400 hover:text-red-600 p-2 -mr-1 transition-colors ml-2 min-w-[36px] min-h-[36px] flex items-center justify-center touch-manipulation"
                           title="Fjern vare"
+                          aria-label="Fjern vare fra kurven"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                         </button>
                       </div>
 
@@ -182,23 +186,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                     {/* Quantity controls */}
                     <div className="flex items-center space-x-2 mt-2">
-                      <div className="flex items-center border border-slate-200 rounded-md bg-white">
+                      <div className="flex items-center border border-slate-200 rounded-lg bg-white">
                         <button
                           onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1, item.targetUrl)}
-                          className="p-1 text-slate-500 hover:text-slate-800"
+                          className="w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center text-slate-500 hover:text-slate-800 touch-manipulation active:bg-slate-100 rounded-l-lg"
                           aria-label="Reduser antall"
                         >
-                          <Minus className="w-3 h-3" />
+                          <Minus className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
                         </button>
-                        <span className="text-xs font-semibold px-2 font-mono tabular-nums">
+                        <span className="text-xs font-bold px-2.5 font-mono tabular-nums">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1, item.targetUrl)}
-                          className="p-1 text-slate-500 hover:text-slate-800"
+                          className="w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center text-slate-500 hover:text-slate-800 touch-manipulation active:bg-slate-100 rounded-r-lg"
                           aria-label="Øk antall"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
                         </button>
                       </div>
                       <span className="text-[11px] text-slate-500 font-mono tabular-nums">
@@ -213,7 +217,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
           {/* Footer Summary & Checkout */}
           {items.length > 0 && (
-            <div className="p-6 border-t border-slate-200 bg-slate-50/50 space-y-4">
+            <div className="p-4 sm:p-6 border-t border-slate-200 bg-slate-50/70 space-y-4">
               <div className="space-y-1.5 text-xs text-slate-600">
                 <div className="flex justify-between">
                   <span>Delsum (ordinær pris):</span>
@@ -226,7 +230,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <div className="flex justify-between text-emerald-700 font-semibold bg-emerald-50/80 p-2 rounded-lg border border-emerald-200/60">
                     <span className="flex items-center space-x-1">
                       <span>🏷️</span>
-                      <span>Kvantumsrabatt (10% ved 3+ varer):</span>
+                      <span>{bulkDiscount.tierLabel}:</span>
                     </span>
                     <span className="font-mono tabular-nums">-{discountAmount} kr</span>
                   </div>
@@ -260,7 +264,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
               <button
                 onClick={onProceedToCheckout}
-                className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2"
+                className="w-full py-4 sm:py-3.5 min-h-[48px] bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2 touch-manipulation active:scale-[0.99]"
               >
                 <span>Gå til kassen med Stripe</span>
                 <ArrowRight className="w-4 h-4" />

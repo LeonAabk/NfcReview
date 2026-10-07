@@ -19,15 +19,18 @@ export const Hero: React.FC<HeroProps> = ({ onOrderClick, onSimulatorClick }) =>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           {/* Left Column: Value Proposition */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-            {/* Trust Kicker */}
-            <div className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-800 bg-white border border-slate-200/90 shadow-xs px-3.5 py-1.5 rounded-full">
-              <span className="flex text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
-                ))}
-              </span>
-              <span className="text-slate-400">·</span>
-              <span>Brukt av over 450+ norske bedrifter</span>
+            {/* Trust Kicker: Ungdomsbedrift */}
+            <div className="inline-flex flex-wrap items-center justify-center lg:justify-start gap-2">
+              <div className="inline-flex items-center space-x-1.5 text-xs font-bold text-amber-900 bg-amber-50 border border-amber-300 shadow-xs px-3.5 py-1.5 rounded-full">
+                <span>🇳🇴</span>
+                <span>Offisiell Ungdomsbedrift (UB)</span>
+                <span className="text-amber-400">·</span>
+                <span className="font-semibold text-amber-800">Ungt Entreprenørskap</span>
+              </div>
+              <div className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200/90 shadow-xs px-3.5 py-1.5 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Nylansert 2026 · Støtt ungt entreprenørskap</span>
+              </div>
             </div>
 
             {/* Main Headline */}

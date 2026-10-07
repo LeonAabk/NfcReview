@@ -18,10 +18,14 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy }) =>
                 ★
               </span>
               <span>NFC Review<span className="text-blue-500">.no</span></span>
+              <span className="bg-amber-400/20 text-amber-300 text-[10px] font-extrabold px-1.5 py-0.5 rounded border border-amber-400/30">UB</span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Norges ledende leverandør av kontaktløse NFC-anmeldelseskort og QR-bordskilt. Vi hjelper fysiske bedrifter med å automatisere innhenting av 5-stjerners Google-omtaler.
+              En stolt norsk <strong>Ungdomsbedrift (UB)</strong> tilknyttet Ungt Entreprenørskap. Vi leverer kontaktløse Google Review-bordskilt og menykort for å løfte lokale serveringssteder og bedrifter.
             </p>
+            <div className="inline-flex items-center space-x-1.5 text-[11px] text-amber-400 font-semibold bg-amber-400/10 px-2.5 py-1 rounded-md border border-amber-400/20">
+              <span>🇳🇴 Samarbeid med Ungt Entreprenørskap</span>
+            </div>
           </div>
 
           {/* Navigation links */}

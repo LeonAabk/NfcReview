@@ -5,8 +5,8 @@ export interface Product {
   price: number;
   originalPrice?: number;
   badge?: string;
-  rating: number;
-  reviewsCount: number;
+  rating?: number;
+  reviewsCount?: number;
   features: string[];
   type: 'stand' | 'menu' | 'bundle';
   chipType: string;

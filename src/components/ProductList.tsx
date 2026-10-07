@@ -36,73 +36,77 @@ export const ProductList: React.FC<ProductListProps> = ({ onAddToCart }) => {
             </p>
           </div>
 
-          {/* Interactive Filter Tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl self-start md:self-auto border border-slate-200/80">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
-                filter === 'all'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Alle varer
-            </button>
-            <button
-              onClick={() => setFilter('stand')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
-                filter === 'stand'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Bordskilt
-            </button>
-            <button
-              onClick={() => setFilter('menu')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
-                filter === 'menu'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Meny-kort
-            </button>
-            <button
-              onClick={() => setFilter('bundle')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
-                filter === 'bundle'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Serveringspakke
-            </button>
+          {/* Interactive Filter Tabs - Mobile Touch Scrollable */}
+          <div className="w-full md:w-auto overflow-x-auto no-scrollbar py-1 -my-1">
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl min-w-max border border-slate-200/80">
+              <button
+                onClick={() => setFilter('all')}
+                className={`px-4 py-2 sm:py-1.5 sm:px-3.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap min-h-[40px] sm:min-h-0 flex items-center justify-center touch-manipulation ${
+                  filter === 'all'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 active:bg-slate-200/60'
+                }`}
+              >
+                Alle varer
+              </button>
+              <button
+                onClick={() => setFilter('stand')}
+                className={`px-4 py-2 sm:py-1.5 sm:px-3.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap min-h-[40px] sm:min-h-0 flex items-center justify-center touch-manipulation ${
+                  filter === 'stand'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 active:bg-slate-200/60'
+                }`}
+              >
+                Bordskilt (299 kr)
+              </button>
+              <button
+                onClick={() => setFilter('menu')}
+                className={`px-4 py-2 sm:py-1.5 sm:px-3.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap min-h-[40px] sm:min-h-0 flex items-center justify-center touch-manipulation ${
+                  filter === 'menu'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 active:bg-slate-200/60'
+                }`}
+              >
+                Meny-kort (99 kr)
+              </button>
+              <button
+                onClick={() => setFilter('bundle')}
+                className={`px-4 py-2 sm:py-1.5 sm:px-3.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap min-h-[40px] sm:min-h-0 flex items-center justify-center touch-manipulation ${
+                  filter === 'bundle'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 active:bg-slate-200/60'
+                }`}
+              >
+                Pakketilbud & Bulk
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Volume Discount Offer Banner */}
-        <div className="mb-10 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 border border-emerald-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        {/* Volume & Bulk Deals Banner */}
+        <div className="mb-10 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 border border-emerald-200/80 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div className="flex items-start sm:items-center space-x-3.5">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-sm">
               %
             </div>
             <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-extrabold text-emerald-800 uppercase tracking-wider">
-                  Kvantumsrabatt for servering & bedrifter
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">
+                  Trinnvise Bulk Deals for servering & bedrifter
                 </span>
                 <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  Spar 10%
+                  Opptil 20% rabatt
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-700 font-medium mt-0.5">
-                Kjøp <strong>3 eller flere</strong> valgfrie produkter (f.eks. menykort til alle bord eller flere bordskilt) og få automatisk <strong>10% rabatt på hele ordren</strong> i kassen!
+              <p className="text-xs sm:text-sm text-slate-700 font-medium mt-1">
+                Kjøp <strong>3+ enheter (10% rabatt)</strong> · <strong>5+ enheter (15% rabatt)</strong> · <strong>10+ enheter (20% rabatt)</strong>. Rabatten trekkes automatisk fra i kassen!
               </p>
             </div>
           </div>
-          <div className="self-end sm:self-auto shrink-0 text-xs font-semibold text-emerald-700 bg-white/80 border border-emerald-200 px-3 py-1.5 rounded-xl">
-            Trekkes automatisk fra i kurven
+          <div className="flex items-center gap-2 shrink-0 self-stretch sm:self-auto justify-end">
+            <span className="text-xs font-bold text-emerald-800 bg-white border border-emerald-200 px-3 py-1.5 rounded-xl shadow-xs">
+              Fri frakt over 500 kr
+            </span>
           </div>
         </div>
 
