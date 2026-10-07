@@ -35,6 +35,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         <div className="relative">
           <ProductVisual
             type={product.type}
+            productId={product.id}
           />
 
           {/* Badge */}

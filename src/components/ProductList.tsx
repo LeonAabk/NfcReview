@@ -11,11 +11,22 @@ interface ProductListProps {
 export const ProductList: React.FC<ProductListProps> = ({ onAddToCart }) => {
   const [filter, setFilter] = useState<'all' | 'stand' | 'menu' | 'bundle'>('all');
 
+  const isBundleOrBulk = (item: Product) =>
+    item.type === 'bundle' ||
+    item.id.includes('bulk') ||
+    item.id.includes('pack') ||
+    item.id.includes('double') ||
+    item.id.includes('duo');
+
+  const standsCount = PRODUCTS.filter((item) => item.type === 'stand').length;
+  const menuCount = PRODUCTS.filter((item) => item.type === 'menu').length;
+  const bundleCount = PRODUCTS.filter(isBundleOrBulk).length;
+
   const filteredProducts = PRODUCTS.filter((item) => {
     if (filter === 'all') return true;
     if (filter === 'stand') return item.type === 'stand';
     if (filter === 'menu') return item.type === 'menu';
-    if (filter === 'bundle') return item.type === 'bundle';
+    if (filter === 'bundle') return isBundleOrBulk(item);
     return true;
   });
 
@@ -32,7 +43,7 @@ export const ProductList: React.FC<ProductListProps> = ({ onAddToCart }) => {
               Google Review Bordskilt & Meny-kort
             </h2>
             <p className="mt-2 text-slate-600 text-sm max-w-xl">
-              Ferdige, kontaktløse NFC- og QR-produkter for servering og fysiske bedrifter. Vi koder dine lenker før forsendelse!
+              Ferdige, kontaktløse NFC- og QR-produkter og gunstige pakketilbud for servering og bedrifter. Vi koder dine lenker før forsendelse!
             </p>
           </div>
 
@@ -47,7 +58,7 @@ export const ProductList: React.FC<ProductListProps> = ({ onAddToCart }) => {
                     : 'text-slate-600 hover:text-slate-900 active:bg-slate-200/60'
                 }`}
               >
-                Alle varer
+                Alle varer ({PRODUCTS.length})
               </button>
               <button
                 onClick={() => setFilter('stand')}
@@ -57,7 +68,7 @@ export const ProductList: React.FC<ProductListProps> = ({ onAddToCart }) => {
                     : 'text-slate-600 hover:text-slate-900 active:bg-slate-200/60'
                 }`}
               >
-                Bordskilt (299 kr)
+                Bordskilt ({standsCount})
               </button>
               <button
                 onClick={() => setFilter('menu')}
@@ -67,17 +78,17 @@ export const ProductList: React.FC<ProductListProps> = ({ onAddToCart }) => {
                     : 'text-slate-600 hover:text-slate-900 active:bg-slate-200/60'
                 }`}
               >
-                Meny-kort (99 kr)
+                Meny-kort ({menuCount})
               </button>
               <button
                 onClick={() => setFilter('bundle')}
-                className={`px-4 py-2 sm:py-1.5 sm:px-3.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap min-h-[40px] sm:min-h-0 flex items-center justify-center touch-manipulation ${
+                className={`px-4 py-2 sm:py-1.5 sm:px-3.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap min-h-[40px] sm:min-h-0 flex items-center space-x-1 justify-center touch-manipulation ${
                   filter === 'bundle'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 active:bg-slate-200/60'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-blue-700 bg-blue-50/70 hover:bg-blue-100 active:bg-blue-200/60'
                 }`}
               >
-                Pakketilbud & Bulk
+                <span>🎁 Pakketilbud & Bulk ({bundleCount})</span>
               </button>
             </div>
           </div>

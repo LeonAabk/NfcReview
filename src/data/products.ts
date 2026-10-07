@@ -43,12 +43,34 @@ export const PRODUCTS: Product[] = [
     ]
   },
   {
+    id: 'restaurant-pro-pack',
+    name: 'Restaurant & Kafé Pro-Pakke (2x Skilt + 5x Meny)',
+    shortDescription: 'Komplett proffpakke for serveringssteder: 2 stk Google Review Bordskilt for kasse & bar + 5 stk Meny-kort til bordene. Vår mest populære kombinasjon!',
+    price: 699,
+    originalPrice: 1093,
+    badge: 'Beste Verdi · Spar 394 kr',
+    isPopular: true,
+    type: 'bundle',
+    chipType: 'NXP NTAG216 i alle enheter',
+    material: '2x Hvit formstøpt akryl + 5x Matt vanntett PVC',
+    dimensions: '2 stk Bordskilt (12.75×7.6 cm) + 5 stk Meny-kort (8.55×5.4 cm)',
+    compatibility: 'Universal kompatibilitet med alle iOS- og Android-enheter',
+    features: [
+      '2 stk Google Review Bordskilt i akryl (verdi 598 kr) til kasse og bardisk',
+      '5 stk Dobbelsidige Meny-kort (verdi 495 kr) til bordene',
+      'Vi forhåndsprogrammerer både Google-lenken og menylenken før sending',
+      'Totalverdi 1 093 kr – du sparer hele 394 kr (over 35% rabatt!)',
+      'Fri frakt med Posten inkludert',
+      'Klar til bruk umiddelbart ut av esken uten installasjon'
+    ]
+  },
+  {
     id: 'hospitality-combo-pack',
-    name: 'Serveringspakke (1x Bordskilt + 2x Menykort)',
-    shortDescription: '1 stk Google Review Bordskilt i akryl for kassen + 2 stk Meny-kort for bordene. Komplett startpakke!',
+    name: 'Serveringspakke Start (1x Bordskilt + 2x Meny)',
+    shortDescription: '1 stk Google Review Bordskilt i akryl for kassen + 2 stk Meny-kort for bordene. Perfekt startpakke for mindre spisesteder!',
     price: 399,
     originalPrice: 497,
-    badge: 'Kombideal - Spar 98 kr',
+    badge: 'Startdeal · Spar 98 kr',
     type: 'bundle',
     chipType: 'NXP NTAG216 i alle enheter',
     material: 'Kombinasjon av hvit akryl og matt vanntett PVC',
@@ -60,6 +82,107 @@ export const PRODUCTS: Product[] = [
       'Vi koder både Google Review-lenken og menylenken før sending',
       'Spar 98 kr sammenlignet med enkeltkjøp',
       'Klar til bruk umiddelbart ut av esken'
+    ]
+  },
+  {
+    id: 'google-stand-double',
+    name: 'Google Review Dobbelpakke (2x Bordskilt)',
+    shortDescription: '2 stk frittstående hvite akryl bordskilt. Perfekt for bedrifter med 2 kasser, resepsjon + disk, eller to avdelinger.',
+    price: 499,
+    originalPrice: 598,
+    badge: 'Pakketilbud · Spar 99 kr',
+    type: 'stand',
+    chipType: 'NXP NTAG216 i begge skilt',
+    material: 'Hvit formstøpt akryl, ripebestandig',
+    dimensions: '2 stk L-skilt (12.75 × 7.6 cm)',
+    compatibility: 'Fungerer med alle moderne smarttelefoner',
+    features: [
+      'Inkluderer 2 stk Google Review Bordskilt (ordinær 598 kr)',
+      'Dekker to betalingspunkter eller avdelinger samtidig',
+      'Vi koder inn din bedrifts Google Review-lenke på begge',
+      'Spar 99 kr i forhold til separate enkeltkjøp',
+      'Ingen batterier eller månedlige kostnader'
+    ]
+  },
+  {
+    id: 'cafe-compact-duo',
+    name: 'Kafé / Bar Kompakt (1x Skilt + 1x Meny)',
+    shortDescription: '1 stk Google Review Bordskilt for kassen + 1 stk Meny-kort for disken eller prøvebord. Den mest prisgunstige kombinasjonen!',
+    price: 349,
+    originalPrice: 398,
+    badge: 'Kompaktdeal · Spar 49 kr',
+    type: 'bundle',
+    chipType: 'NXP NTAG216 i begge produkter',
+    material: '1x Hvit akryl + 1x Matt vanntett PVC',
+    dimensions: '1 stk L-skilt + 1 stk bordkort',
+    compatibility: 'Universal støtte for alle telefoner',
+    features: [
+      '1 stk Google Review Bordskilt (ordinær 299 kr)',
+      '1 stk Meny-kort med NFC & QR (ordinær 99 kr)',
+      'Test både anmeldelser og digital meny i daglig drift',
+      'Vi koder begge enhetene ferdig før forsendelse',
+      'Perfekt for kaffebar, food truck eller boutique'
+    ]
+  },
+  {
+    id: 'google-stand-bulk-3',
+    name: 'Google Review Bordskilt 3-Pakning (Bulk deal)',
+    shortDescription: '3 stk frittstående hvite akryl bordskilt for flere disker eller bord. Kun 249 kr/stk!',
+    price: 749,
+    originalPrice: 897,
+    badge: 'Bulk deal · Spar 148 kr',
+    type: 'stand',
+    chipType: 'NXP NTAG216 i alle skilt',
+    material: 'Hvit formstøpt akryl av høyeste kvalitet',
+    dimensions: '3 stk L-skilt (12.75 × 7.6 cm)',
+    compatibility: 'Fungerer med alle moderne telefoner',
+    features: [
+      'Inkluderer 3 stk Bordskilt (kun ~249 kr/stk – spar 148 kr!)',
+      'Ideelt for bedrifter med flere betalingsstasjoner eller avdelinger',
+      'Vi koder inn din bedrifts Google Review-lenke',
+      'Ferdig montert med L-fot – klar til å settes på disken',
+      'Fri frakt med Posten inkludert'
+    ]
+  },
+  {
+    id: 'google-stand-bulk-5',
+    name: 'Google Review 5-Pakning (Kjede / Flere filialer)',
+    shortDescription: '5 stk Google Review Bordskilt for bedrifter med mange kasser, verksteder, klinikker eller flere filialer. Kun 219 kr/stk!',
+    price: 1095,
+    originalPrice: 1495,
+    badge: 'Kjedepakke · Spar 400 kr',
+    type: 'stand',
+    chipType: 'NXP NTAG216 i alle 5 skilt',
+    material: 'Hvit formstøpt akryl av høyeste kvalitet',
+    dimensions: '5 stk L-skilt (12.75 × 7.6 cm)',
+    compatibility: 'Fungerer med alle smarttelefoner',
+    features: [
+      'Inkluderer 5 stk Bordskilt (kun 219 kr/stk – spar 400 kr!)',
+      'Kan programmeres til samme Google-lenke eller ulike filialer',
+      'Vi koder inn alle skilt etter dine instruksjoner',
+      'Fri frakt med Posten inkludert',
+      'Gir maksimal synlighet og jevn vekst i Google-anmeldelser'
+    ]
+  },
+  {
+    id: 'hospitality-enterprise-pack',
+    name: 'Storkunde Restaurantpakke (3x Skilt + 10x Meny)',
+    shortDescription: 'Totalpakke for store serveringssteder og restauranter: 3 stk Google Review Bordskilt + 10 stk Meny-kort for full dekning i hele lokalet.',
+    price: 1290,
+    originalPrice: 1887,
+    badge: 'Maks Besparelse · Spar 597 kr',
+    type: 'bundle',
+    chipType: 'NXP NTAG216 i alle enheter',
+    material: '3x Hvit formstøpt akryl + 10x Matt vanntett PVC',
+    dimensions: '3 stk Bordskilt + 10 stk Meny-kort',
+    compatibility: 'Universal kompatibilitet med alle smarttelefoner',
+    features: [
+      '3 stk Google Review Bordskilt (verdi 897 kr) til inngang, kasse og bar',
+      '10 stk Dobbelsidige Meny-kort (verdi 990 kr) for bordene',
+      'Totalverdi 1 887 kr – du sparer hele 597 kr (over 30% rabatt!)',
+      'Forhåndskodet og kvalitetssikret av vår ungdomsbedrift',
+      'Fri prioritert frakt med Posten inkludert',
+      'Gir gjestene en sømløs og moderne digital kundeopplevelse'
     ]
   },
   {
@@ -103,22 +226,22 @@ export const PRODUCTS: Product[] = [
     ]
   },
   {
-    id: 'google-stand-bulk-3',
-    name: 'Google Review Bordskilt 3-Pakning (Bulk deal)',
-    shortDescription: '3 stk frittstående hvite akryl bordskilt for flere disker eller bord. Kun 249 kr/stk!',
-    price: 749,
-    originalPrice: 897,
-    badge: 'Bulk deal · Spar 148 kr',
-    type: 'stand',
-    chipType: 'NXP NTAG216 i alle skilt',
-    material: 'Hvit formstøpt akryl av høyeste kvalitet',
-    dimensions: '3 stk L-skilt (12.75 × 7.6 cm)',
-    compatibility: 'Fungerer med alle moderne telefoner',
+    id: 'menu-card-bulk-20',
+    name: 'Meny-kort 20-Pakning (Stor Restaurant)',
+    shortDescription: '20 stk vanntette meny-kort for store lokaler eller uteservering. Ekstremt gunstig stykkpris på kun 69 kr/kort!',
+    price: 1390,
+    originalPrice: 1980,
+    badge: 'Superbulk · Kun 69 kr/stk',
+    type: 'menu',
+    chipType: 'NXP NTAG216 i alle 20 kort',
+    material: 'Matt forsterket vanntett PVC',
+    dimensions: '20 stk bordkort (8.55 × 5.4 cm)',
+    compatibility: 'Universal kompatibilitet med alle telefoner',
     features: [
-      'Inkluderer 3 stk Bordskilt (kun ~249 kr/stk – spar 148 kr!)',
-      'Ideelt for bedrifter med flere betalingsstasjoner eller avdelinger',
-      'Vi koder inn din bedrifts Google Review-lenke',
-      'Ferdig montert med L-fot – klar til å settes på disken',
+      'Inkluderer 20 stk Meny-kort (kun 69 kr per kort – spar 590 kr!)',
+      'Full dekning for inntil 20 bord i restauranten eller på uteserveringen',
+      '100% vanntett og tåler sprit, vaskemidler og vær',
+      'Forhåndskodet med din digitale meny-URL',
       'Fri frakt med Posten inkludert'
     ]
   }

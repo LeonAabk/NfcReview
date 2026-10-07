@@ -2,17 +2,36 @@ import React, { useState } from 'react';
 
 interface ProductVisualProps {
   type: 'stand' | 'menu' | 'bundle';
+  productId?: string;
   interactive?: boolean;
   size?: 'sm' | 'md' | 'lg';
 }
 
 export const ProductVisual: React.FC<ProductVisualProps> = ({
   type,
+  productId,
   size = 'md'
 }) => {
   const isSm = size === 'sm';
   const isLg = size === 'lg';
   const [menuSide, setMenuSide] = useState<'tap' | 'scan'>('tap');
+
+  // Multi-pack labels
+  const getPackBadge = () => {
+    if (productId === 'google-stand-double') return '2× Bordskilt i pakken';
+    if (productId === 'google-stand-bulk-3') return '3× Bordskilt i pakken';
+    if (productId === 'google-stand-bulk-5') return '5× Bordskilt i pakken';
+    if (productId === 'menu-card-bulk-5') return '5× Meny-kort i pakken';
+    if (productId === 'menu-card-bulk-10') return '10× Meny-kort i pakken';
+    if (productId === 'menu-card-bulk-20') return '20× Meny-kort i pakken';
+    if (productId === 'restaurant-pro-pack') return '2× Skilt + 5× Meny-kort';
+    if (productId === 'hospitality-enterprise-pack') return '3× Skilt + 10× Meny-kort';
+    if (productId === 'cafe-compact-duo') return '1× Skilt + 1× Meny-kort';
+    if (productId === 'hospitality-combo-pack') return '1× Skilt + 2× Meny-kort';
+    return null;
+  };
+
+  const packBadge = getPackBadge();
 
   // 1. Google Review Bordskilt (Akryl) - Exact match to user photo
   if (type === 'stand') {
@@ -23,9 +42,9 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
 
         {/* 3D Perspective Stand Container */}
         <div className="relative z-10 flex flex-col items-center select-none transform hover:scale-[1.02] transition-transform duration-300">
-          {/* Dimension indicator badge */}
+          {/* Dimension or Pack indicator badge */}
           <div className="absolute -top-3 right-0 bg-slate-900/80 text-white text-[10px] font-mono px-2 py-0.5 rounded-full shadow-xs backdrop-blur-xs">
-            12.75 × 7.6 cm
+            {packBadge || '12.75 × 7.6 cm'}
           </div>
 
           {/* Upright Front Acrylic Plate */}
@@ -137,6 +156,12 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
       <div className={`relative flex flex-col items-center justify-center p-4 bg-gradient-to-br from-stone-900 via-black to-stone-950 rounded-2xl overflow-hidden ${isSm ? 'h-48' : isLg ? 'h-96' : 'h-80'}`}>
         <div className="absolute inset-0 bg-radial from-amber-500/10 via-transparent to-transparent pointer-events-none" />
 
+        {packBadge && (
+          <div className="absolute top-3 right-3 z-20 bg-slate-800 text-white text-[10px] font-mono px-2 py-0.5 rounded-full shadow-xs border border-slate-700">
+            {packBadge}
+          </div>
+        )}
+
         {/* Dual Card Presentation (Tap side & Scan side) */}
         <div className="relative z-10 flex items-center justify-center gap-3 w-full max-w-sm">
           {/* Card Side 1: "Tap to view our MENU" */}
@@ -225,9 +250,14 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
     );
   }
 
-  // 3. Serveringspakke (1x Bordskilt + 2x Menykort)
+  // 3. Serveringspakke & Bundles
   return (
     <div className={`relative flex items-center justify-center p-4 bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200 rounded-2xl overflow-hidden ${isSm ? 'h-48' : isLg ? 'h-96' : 'h-80'}`}>
+      {packBadge && (
+        <div className="absolute top-3 right-3 z-20 bg-blue-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-xs border border-blue-700">
+          {packBadge}
+        </div>
+      )}
       <div className="relative flex items-center justify-center w-full max-w-sm">
         {/* Acrylic Google Bordskilt in background */}
         <div className="transform scale-90 translate-x-8 -translate-y-2 opacity-95">
