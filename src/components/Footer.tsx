@@ -4,9 +4,10 @@ import { Mail, Phone, MapPin, ShieldCheck } from 'lucide-react';
 interface FooterProps {
   onOpenTerms: () => void;
   onOpenPrivacy: () => void;
+  onOpenAdmin: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy, onOpenAdmin }) => {
   return (
     <footer className="bg-slate-950 text-white border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
@@ -105,9 +106,19 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy }) =>
           </div>
         </div>
 
-        {/* Bottom bar with payment methods and copyright */}
+        {/* Bottom bar with payment methods, admin link and copyright */}
         <div className="border-t border-slate-800/80 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} NFC Review Norge. Alle rettigheter reservert.</p>
+          <div className="flex items-center space-x-3">
+            <p>© {new Date().getFullYear()} NFC Review UB.</p>
+            <span className="text-slate-700">·</span>
+            <button
+              onClick={onOpenAdmin}
+              className="text-slate-500 hover:text-amber-400 flex items-center space-x-1 transition-colors text-[11px]"
+              title="Åpne internt ordre- og forsendelsespanel for ungdomsbedriften"
+            >
+              <span>🔒 Admin & Ordreoversikt</span>
+            </button>
+          </div>
 
           {/* Payment Badges */}
           <div className="flex items-center space-x-3 text-slate-400">

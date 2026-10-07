@@ -36,4 +36,20 @@ export interface CustomerOrderData {
   notes?: string;
 }
 
+export type OrderStatus = 'ny' | 'behandles' | 'sendt' | 'fullfort';
+
+export interface OrderRecord {
+  orderId: string;
+  createdAt: string;
+  status: OrderStatus;
+  items: CartItem[];
+  subtotal: number;
+  discountAmount: number;
+  shippingFee: number;
+  total: number;
+  customer: CustomerOrderData;
+  trackingNumber?: string;
+  adminNotes?: string;
+}
+
 

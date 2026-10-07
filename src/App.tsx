@@ -17,6 +17,7 @@ import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { TermsModal } from './components/TermsModal';
+import { AdminOrdersModal } from './components/AdminOrdersModal';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { calculateBulkDiscount, FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from './utils/discount';
 
@@ -34,6 +35,7 @@ export default function App() {
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [activeLegalModal, setActiveLegalModal] = useState<'terms' | 'privacy' | null>(null);
 
   // Sync cart changes with localStorage
@@ -160,6 +162,7 @@ export default function App() {
       <Footer
         onOpenTerms={() => setActiveLegalModal('terms')}
         onOpenPrivacy={() => setActiveLegalModal('privacy')}
+        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       {/* Mobile Sticky Floating Cart Bar */}
@@ -223,6 +226,12 @@ export default function App() {
       <TermsModal
         type={activeLegalModal}
         onClose={() => setActiveLegalModal(null)}
+      />
+
+      {/* Admin Orders & Fulfillment Dashboard Modal */}
+      <AdminOrdersModal
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
       />
     </div>
   );

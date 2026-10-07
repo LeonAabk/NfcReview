@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { CartItem, CustomerOrderData } from '../types';
-import { X, CheckCircle, Lock, CreditCard, Sparkles } from 'lucide-react';
+import { CartItem, CustomerOrderData, OrderRecord } from '../types';
+import { X, CheckCircle, Lock, CreditCard, Sparkles, Printer, Mail, Send } from 'lucide-react';
+import { saveOrder, generateStoreOwnerNotificationEmail } from '../utils/orders';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -42,6 +43,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState('');
+  const [savedOrderRecord, setSavedOrderRecord] = useState<OrderRecord | null>(null);
 
   if (!isOpen) return null;
 
@@ -56,20 +58,22 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     e.preventDefault();
     setIsProcessing(true);
 
-    if (stripePaymentLink.trim().startsWith('https://buy.stripe.com/')) {
-      const generatedId = `NFC-${Math.floor(100000 + Math.random() * 900000)}`;
-      const orderPayload = {
-        orderId: generatedId,
-        date: new Date().toISOString(),
-        items,
-        subtotal,
-        discountAmount,
-        shippingFee,
-        total,
-        formData
-      };
-      localStorage.setItem(`order_${generatedId}`, JSON.stringify(orderPayload));
+    const generatedId = `NFC-${Math.floor(100000 + Math.random() * 900000)}`;
+    const newOrder: OrderRecord = {
+      orderId: generatedId,
+      createdAt: new Date().toISOString(),
+      status: 'ny',
+      items,
+      subtotal,
+      discountAmount,
+      shippingFee,
+      total,
+      customer: formData
+    };
+    saveOrder(newOrder);
+    setSavedOrderRecord(newOrder);
 
+    if (stripePaymentLink.trim().startsWith('https://buy.stripe.com/')) {
       const url = new URL(stripePaymentLink.trim());
       url.searchParams.set('client_reference_id', generatedId);
       if (formData.email) {
@@ -80,7 +84,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     }
 
     setTimeout(() => {
-      const generatedId = `NFC-${Math.floor(100000 + Math.random() * 900000)}`;
       setOrderId(generatedId);
       setIsProcessing(false);
       setOrderComplete(true);
@@ -165,12 +168,30 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               )}
             </div>
 
-            <div className="pt-4">
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+              {savedOrderRecord && (
+                <a
+                  href={generateStoreOwnerNotificationEmail(savedOrderRecord)}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition-colors"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Varsle bedriften på e-post</span>
+                </a>
+              )}
               <button
-                onClick={onClose}
-                className="w-full sm:w-auto px-6 py-3.5 sm:py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm sm:text-xs font-bold touch-manipulation min-h-[44px]"
+                type="button"
+                onClick={() => window.print()}
+                className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors"
               >
-                Lukk og gå tilbake til butikken
+                <Printer className="w-3.5 h-3.5" />
+                <span>Skriv ut kvittering</span>
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors"
+              >
+                Gå til butikken
               </button>
             </div>
           </div>
