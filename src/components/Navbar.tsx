@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingBag, Menu, X, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Menu, X, ArrowRight, ExternalLink } from 'lucide-react';
 
 interface NavbarProps {
   cartCount: number;
@@ -64,6 +64,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="hover:text-blue-600 transition-colors"
           >
             Produkter
+          </a>
+          <a
+            href="https://aabakstudio.com/SmartMenu/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-blue-600 transition-colors inline-flex items-center gap-1 group text-slate-700"
+            title="SmakSync digitale menyer og NFC-bordkort for restauranter"
+          >
+            <span>Menykort (SmakSync)</span>
+            <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors" />
           </a>
           <a
             href="#how-it-works"
@@ -159,6 +169,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               Produkter & Priser
             </button>
+            <a
+              href="https://aabakstudio.com/SmartMenu/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-slate-50 text-slate-800"
+            >
+              <span className="flex items-center gap-1.5 font-medium">
+                <span>Menykort (SmakSync)</span>
+                <span className="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200/60 px-1.5 py-0.2 rounded font-semibold">Restaurant</span>
+              </span>
+              <ExternalLink className="w-4 h-4 text-slate-400" />
+            </a>
             <button
               onClick={() => handleLinkClick('how-it-works')}
               className="text-left py-2 px-2 rounded-lg hover:bg-slate-50"

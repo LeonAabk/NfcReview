@@ -13,6 +13,7 @@ import { LiveSimulator } from './components/LiveSimulator';
 import { RoiCalculator } from './components/RoiCalculator';
 import { FaqSection } from './components/FaqSection';
 import { AboutUb } from './components/AboutUb';
+import { RestaurantEcosystemSection } from './components/RestaurantEcosystemSection';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
@@ -153,8 +154,25 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FBFBFA] text-slate-900">
+      {/* 1. Økosystem-toppstripe (øverst over headeren) */}
+      <div className="bg-zinc-950 text-zinc-300 border-b border-zinc-900 text-xs py-2 px-4 transition-colors">
+        <div className="max-w-7xl mx-auto flex items-center justify-center text-center">
+          <a
+            href="https://aabakstudio.com/SmartMenu/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-1.5 text-zinc-300 hover:text-white transition-colors group text-xs sm:text-[13px] tracking-tight"
+          >
+            <span className="font-semibold text-zinc-200">Aabak Studio Økosystem</span>
+            <span className="text-zinc-600">·</span>
+            <span>Driver du restaurant? Se våre digitale menyer &amp; NFC-bordkort på SmakSync</span>
+            <span className="font-bold text-zinc-100 group-hover:translate-x-0.5 transition-transform">→</span>
+          </a>
+        </div>
+      </div>
+
       {/* Top Banner: Ungdomsbedrift & Bulk deals notification */}
-      <div className="bg-slate-900 text-white text-[11px] py-2 px-4 text-center font-medium tracking-wide flex items-center justify-center space-x-2">
+      <div className="bg-slate-900 text-white text-[11px] py-1.5 px-4 text-center font-medium tracking-wide flex items-center justify-center space-x-2 border-b border-slate-800">
         <span className="bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded text-[10px]">UB</span>
         <span>Stolt Norsk Ungdomsbedrift</span>
         <span className="text-slate-500 hidden sm:inline">·</span>
@@ -179,6 +197,9 @@ export default function App() {
 
         {/* Products Listing Grid */}
         <ProductList onAddToCart={handleAddToCart} />
+
+        {/* 3. Dedikert Restaurant-seksjon ("Full pakke for serveringssteder") */}
+        <RestaurantEcosystemSection />
 
         {/* How It Works (3 Steps) */}
         <HowItWorks />

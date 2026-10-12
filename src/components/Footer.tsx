@@ -50,6 +50,16 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy, onOp
               <li>
                 <a href="#faq" className="hover:text-white transition-colors">Ofte stilte spørsmål</a>
               </li>
+              <li>
+                <a
+                  href="https://aabakstudio.com/SmartMenu/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-400 hover:text-emerald-300 transition-colors inline-flex items-center gap-1 font-medium"
+                >
+                  <span>SmakSync Menyer ↗</span>
+                </a>
+              </li>
             </ul>
           </div>
 
