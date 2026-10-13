@@ -14,6 +14,7 @@ import { RoiCalculator } from './components/RoiCalculator';
 import { FaqSection } from './components/FaqSection';
 import { AboutUb } from './components/AboutUb';
 import { RestaurantEcosystemSection } from './components/RestaurantEcosystemSection';
+import { ProductTechVideoSection } from './components/ProductTechVideoSection';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
@@ -203,6 +204,9 @@ export default function App() {
 
         {/* How It Works (3 Steps) */}
         <HowItWorks />
+
+        {/* 3D Exploded View Video & Hardware Quality Breakdown */}
+        <ProductTechVideoSection />
 
         {/* Dedicated Youth Enterprise (Ungdomsbedrift - UB) Section */}
         <AboutUb onOrderClick={() => handleNavigate('products')} />
