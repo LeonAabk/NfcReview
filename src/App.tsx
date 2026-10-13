@@ -158,7 +158,7 @@ export default function App() {
       <div className="bg-zinc-950 text-zinc-300 border-b border-zinc-900 text-xs py-2 px-4 transition-colors">
         <div className="max-w-7xl mx-auto flex items-center justify-center text-center">
           <a
-            href="https://aabakstudio.com/SmartMenu/"
+            href="https://aabakstudio.com/SmakSync/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-1.5 text-zinc-300 hover:text-white transition-colors group text-xs sm:text-[13px] tracking-tight"

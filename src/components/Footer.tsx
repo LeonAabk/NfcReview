@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy, onOp
               </li>
               <li>
                 <a
-                  href="https://aabakstudio.com/SmartMenu/"
+                  href="https://aabakstudio.com/SmakSync/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-emerald-400 hover:text-emerald-300 transition-colors inline-flex items-center gap-1 font-medium"

@@ -170,7 +170,7 @@ export const RestaurantEcosystemSection: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
           {/* Primary CTA */}
           <a
-            href="https://aabakstudio.com/SmartMenu/"
+            href="https://aabakstudio.com/SmakSync/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-zinc-950 hover:bg-zinc-100 font-semibold text-sm rounded-xl transition-all shadow-sm group active:scale-[0.99]"
@@ -181,7 +181,7 @@ export const RestaurantEcosystemSection: React.FC = () => {
 
           {/* Secondary CTA */}
           <a
-            href="https://aabakstudio.com/SmartMenu/meny.html?id=restaurant_eik_og_gran"
+            href="https://aabakstudio.com/SmakSync/meny.html?id=restaurant_eik_og_gran"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-zinc-800 hover:bg-zinc-700/90 text-zinc-100 border border-zinc-750 font-semibold text-sm rounded-xl transition-all group active:scale-[0.99]"

@@ -66,7 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             Produkter
           </a>
           <a
-            href="https://aabakstudio.com/SmartMenu/"
+            href="https://aabakstudio.com/SmakSync/"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-blue-600 transition-colors inline-flex items-center gap-1 group text-slate-700"
@@ -170,7 +170,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               Produkter & Priser
             </button>
             <a
-              href="https://aabakstudio.com/SmartMenu/"
+              href="https://aabakstudio.com/SmakSync/"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setMobileMenuOpen(false)}
