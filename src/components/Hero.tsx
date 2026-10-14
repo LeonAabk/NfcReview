@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowRight, Star, ShieldCheck, Zap, Truck, CheckCircle2 } from 'lucide-react';
+import googleCardPhoto from '../assets/google-card-photo-hd.png';
 
 interface HeroProps {
   onOrderClick: () => void;
@@ -137,49 +138,28 @@ export const Hero: React.FC<HeroProps> = ({ onOrderClick, onSimulatorClick }) =>
                   </div>
 
                   {/* The NFC Review Stand & Menykort resting on surface */}
-                  <div className="relative mt-2 flex items-center justify-center">
-                    {/* White Google Review Stand */}
-                    <div className="w-52 bg-white rounded-xl p-3 shadow-2xl border border-stone-200 text-center select-none transform hover:scale-105 transition-transform z-10">
-                      <p className="text-[10px] font-extrabold text-slate-800">Review us on</p>
-                      <div className="flex items-center justify-center space-x-[1px] text-lg font-black tracking-tight my-0.5 font-sans">
-                        <span className="text-[#4285F4]">G</span>
-                        <span className="text-[#EA4335]">o</span>
-                        <span className="text-[#FBBC05]">o</span>
-                        <span className="text-[#4285F4]">g</span>
-                        <span className="text-[#34A853]">l</span>
-                        <span className="text-[#EA4335]">e</span>
-                      </div>
-                      <div className="flex justify-center space-x-0.5 text-[#FBBC05] mb-1.5">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="w-3 h-3 fill-[#FBBC05]" />
-                        ))}
-                      </div>
-                      <div className="w-full flex h-1 rounded-full overflow-hidden mb-2">
-                        <div className="w-1/4 bg-[#EA4335]" />
-                        <div className="w-1/4 bg-[#34A853]" />
-                        <div className="w-1/4 bg-[#4285F4]" />
-                        <div className="w-1/4 bg-[#FBBC05]" />
-                      </div>
-                      <div className="w-14 h-14 mx-auto bg-stone-50 border border-stone-200 rounded-lg flex items-center justify-center text-[8px] font-mono text-slate-500 mb-1.5">
-                        QR KODE
-                      </div>
-                      <div className="flex justify-around items-center text-[9px] font-bold text-slate-600 border-t border-stone-100 pt-1">
-                        <span>Tap</span>
-                        <span className="text-slate-400 font-normal">OR</span>
-                        <span>Scan</span>
-                      </div>
+                  <div className="relative mt-2 flex items-center justify-center w-full">
+                    {/* The uploaded Google Review NFC Card photo resting on table */}
+                    <div className="relative z-10 select-none transform hover:scale-[1.03] transition-transform duration-300 flex flex-col items-center">
+                      <img
+                        src={googleCardPhoto}
+                        alt="Google Review NFC Bordskilt"
+                        className="w-56 sm:w-64 max-w-full h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.24)]"
+                      />
+                      {/* Physical contact shadow grounded on table surface */}
+                      <div className="w-48 sm:w-56 h-3.5 bg-slate-900/25 blur-md rounded-full -mt-2.5" />
                     </div>
 
                     {/* Black Menykort peeking behind */}
-                    <div className="absolute -right-4 -bottom-2 w-32 aspect-[0.68/1] bg-black rounded-xl p-2.5 shadow-xl border border-stone-800 transform rotate-12 flex flex-col justify-between items-center text-center text-white pointer-events-none">
-                      <div className="w-6 h-6 rounded-full border border-white flex items-center justify-center text-[8px]">
+                    <div className="absolute -right-2 sm:-right-4 -bottom-1 w-28 sm:w-32 aspect-[0.68/1] bg-black rounded-xl p-2.5 shadow-xl border border-stone-800 transform rotate-12 flex flex-col justify-between items-center text-center text-white pointer-events-none z-0">
+                      <div className="w-5 h-5 rounded-full border border-white flex items-center justify-center text-[8px]">
                         🍽️
                       </div>
                       <div>
-                        <p className="text-[7px] text-stone-300">Tap to view our</p>
-                        <p className="text-[11px] font-black tracking-wider uppercase text-white">MENU</p>
+                        <p className="text-[6.5px] text-stone-300">Tap for å se</p>
+                        <p className="text-[10px] font-black tracking-wider uppercase text-white">MENY</p>
                       </div>
-                      <span className="text-[7px] font-mono text-stone-400">NFC TAP</span>
+                      <span className="text-[6.5px] font-mono text-stone-400 bg-stone-900 px-1 py-0.5 rounded">NFC + QR</span>
                     </div>
                   </div>
                 </div>
