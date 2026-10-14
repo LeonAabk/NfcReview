@@ -217,7 +217,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           handleClose();
         }
       }}
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex sm:items-center sm:justify-center p-0 sm:p-4 touch-manipulation"
+      className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-0 sm:p-4"
       role="dialog"
       aria-modal="true"
     >
@@ -313,9 +313,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         </div>
       )}
 
-      <div className="relative bg-white w-full sm:max-w-2xl min-h-screen sm:min-h-0 sm:rounded-2xl shadow-2xl border-0 sm:border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col justify-between">
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-20 p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between bg-white/95 backdrop-blur-md">
+      <div className="relative bg-white w-full sm:max-w-2xl h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:rounded-2xl shadow-2xl border-0 sm:border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col">
+        {/* Header (always fixed at top) */}
+        <div className="shrink-0 p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-white z-10">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center">
               <Lock className="w-4 h-4" />
@@ -336,8 +336,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         </div>
 
         {orderComplete ? (
-          /* Confirmation Screen */
-          <div className="p-6 sm:p-8 text-center space-y-4 my-auto">
+          /* Confirmation Screen (Scrollable) */
+          <div className="flex-1 overflow-y-auto overscroll-contain p-6 sm:p-8 text-center space-y-4 my-auto">
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
               <CheckCircle className="w-10 h-10" />
             </div>
@@ -432,8 +432,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           </div>
         ) : (
           /* Checkout Form */
-          <form onSubmit={handleSubmit} className="flex-1 flex flex-col justify-between">
-            <div className="p-4 sm:p-6 space-y-6">
+          <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+            {/* Scrollable Form Content */}
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-6">
               {/* Stripe Admin Integration Hint / Customizer */}
               <div className="p-3 bg-blue-50/70 border border-blue-200/80 rounded-xl text-xs flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -844,8 +845,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
             </div>
 
-            {/* Sticky Bottom Actions Bar */}
-            <div className="sticky bottom-0 z-20 p-4 sm:p-6 bg-white/95 backdrop-blur-md border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg sm:shadow-none">
+            {/* Docked Bottom Actions Bar (always visible & accessible) */}
+            <div className="shrink-0 p-4 sm:p-5 bg-white/95 sm:bg-white backdrop-blur-md border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] sm:shadow-none z-10 pb-[max(1rem,env(safe-area-inset-bottom))]">
               <div className="flex items-center justify-between w-full sm:w-auto sm:block">
                 <p className="text-xs text-slate-500">Totalsum å betale:</p>
                 <div className="flex items-baseline space-x-1.5">
