@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calculator, TrendingUp, CheckCircle, ArrowRight } from 'lucide-react';
+import { Calculator, CheckCircle, ArrowRight } from 'lucide-react';
 
 export const RoiCalculator: React.FC<{ onExploreProducts: () => void }> = ({ onExploreProducts }) => {
   const [customersPerDay, setCustomersPerDay] = useState(45);
@@ -80,7 +80,7 @@ export const RoiCalculator: React.FC<{ onExploreProducts: () => void }> = ({ onE
               <div className="p-3 bg-white rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1.5">
                 <div className="flex items-center space-x-2">
                   <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Kort og bordskilt koster fra kun <strong>99 kr</strong> (kun engangskjøp).</span>
+                  <span>Google Review NFC-kort koster <strong>399 kr</strong> – eller <strong>330 kr/stk</strong> i Synlighetspakken (inkl. mva., kun engangskjøp).</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -127,7 +127,7 @@ export const RoiCalculator: React.FC<{ onExploreProducts: () => void }> = ({ onE
                   onClick={onExploreProducts}
                   className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold flex items-center justify-center space-x-2 shadow-sm transition-colors"
                 >
-                  <span>Velg dine kort nå</span>
+                  <span>Velg dine Google Review-kort</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>

@@ -19,10 +19,10 @@ export const AboutUb: React.FC<AboutUbProps> = ({ onOrderClick }) => {
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Drevet av unge grundere med lidenskap for smarte løsninger
+            Drevet av unge gründere med lidenskap for smarte løsninger
           </h2>
           <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
-            Vi er en registrert <strong>ungdomsbedrift (UB)</strong> etablert gjennom <strong>Ungt Entreprenørskap</strong>. Vårt mål er å gjøre kontaktløs teknologi tilgjengelig, rimelig og enkelt for norske serveringssteder og lokale bedrifter.
+            Vi er en registrert <strong>ungdomsbedrift (UB)</strong> etablert gjennom skolen og <strong>Ungt Entreprenørskap</strong>. Vårt mål er å gjøre kontaktløs teknologi tilgjengelig, rimelig og enkelt for norske bedrifter og serveringssteder.
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export const AboutUb: React.FC<AboutUbProps> = ({ onOrderClick }) => {
                 Håndkodet & kvalitetstestet i Norge
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Vi programmerer personlig hver eneste NFC-brikke og dobbeltsjekker QR-kodene manuelt med både iPhone og Android før forsendelse. Ingen masseproduksjon uten menneskelig kvalitetskontroll.
+                Vi programmerer personlig hver eneste NFC-brikke og tester kortene manuelt med både iPhone og Android før forsendelse. Kortene leveres klare til montering med slitesterk 3M™-bakside.
               </p>
             </div>
             <div className="pt-4 mt-4 border-t border-slate-100 flex items-center space-x-2 text-xs font-medium text-blue-700">
@@ -76,7 +76,7 @@ export const AboutUb: React.FC<AboutUbProps> = ({ onOrderClick }) => {
                 Ingen dyre abonnementer
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Mange leverandører krever flere hundre kroner i måneden for lignende løsninger. Som ungdomsbedrift mener vi at gode verktøy skal være rimelige for alle – du betaler kun et engangsbeløp for utstyret!
+                Mange leverandører krever flere hundre kroner i måneden for Google Review-kort. Som ungdomsbedrift tar vi kun en rettferdig engangspris (inkl. mva.) – uten løpende lisensgebyrer!
               </p>
             </div>
             <div className="pt-4 mt-4 border-t border-slate-100 flex items-center space-x-2 text-xs font-medium text-emerald-700">
@@ -96,7 +96,7 @@ export const AboutUb: React.FC<AboutUbProps> = ({ onOrderClick }) => {
               Klar til å støtte vår ungdomsbedrift og øke anmeldelsene dine?
             </h4>
             <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-              Vi koder inn din Google Review-lenke eller menylenke og sender direkte til din bedrift med Posten. Gode bulk deals og opptil 20% rabatt!
+              Vi koder inn din Google Review-lenke og sender direkte til din bedrift med Posten. Velg 1 kort (399 kr), Synlighetspakken med 3 kort (990 kr inkl. fri frakt) eller Bedriftspakken med 5 kort (1 490 kr inkl. fri frakt) – alle priser inkl. mva.!
             </p>
           </div>
 

@@ -322,7 +322,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900">Sikker utsjekk</h2>
-              <p className="text-[11px] text-slate-500">Google Review Bordskilt & Meny-kort</p>
+              <p className="text-[11px] text-slate-500">Google Review NFC-kort · Ferdig programmert (inkl. mva.)</p>
             </div>
           </div>
           <button
@@ -343,7 +343,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             </div>
             <h3 className="text-2xl font-extrabold text-slate-900">Takk for din bestilling!</h3>
             <p className="text-sm text-slate-600 max-w-md mx-auto">
-              Ordrenummer <strong>#{orderId}</strong> er registrert. Vi koder dine ferdige NFC- og QR-produkter med dine oppgitte lenker og sender pakken med Posten innen 24-48 timer.
+              Ordrenummer <strong>#{orderId}</strong> er registrert. Vi programmerer dine Google Review NFC-kort (med 3M™-bakside) med din oppgitte lenke og sender pakken med Posten innen 24–48 timer.
             </p>
 
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-left text-xs max-w-md mx-auto space-y-2.5">
@@ -483,7 +483,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   </div>
                 ) : (
                   <p className="text-[11px] text-slate-500">
-                    Tips: Kjøp 3+ enheter for automatisk bulk deal (10% ved 3+, 15% ved 5+, 20% ved 10+)!
+                    Tips: Velg Synlighetspakken (3 kort for 990 kr) eller Bedriftspakken (5 kort for 1 490 kr) inkl. mva. og fri frakt!
                   </p>
                 )}
               </div>
@@ -606,7 +606,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="block text-xs sm:text-[11px] font-bold text-slate-800">
-                        Google Review-lenke (for Bordskilt):
+                        Google Review-lenke (for NFC-kortene):
                       </label>
                       <button
                         type="button"
@@ -839,7 +839,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Rask og sikker betaling uten abonnement. Etter fullført bestilling kodes og kvalitetstestes dine NFC- og QR-produkter før de sendes direkte med Posten.
+                    Rask og sikker betaling uten abonnement. Etter fullført bestilling programmeres og kvalitetstestes dine Google Review NFC-kort før de sendes direkte med Posten.
                   </p>
                 </div>
               </div>
@@ -851,7 +851,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <p className="text-xs text-slate-500">Totalsum å betale:</p>
                 <div className="flex items-baseline space-x-1.5">
                   <p className="text-2xl font-black text-slate-900 font-mono tabular-nums">{total} kr</p>
-                  <span className="text-[11px] text-slate-500">inkl. frakt</span>
+                  <span className="text-[11px] text-slate-500">inkl. mva. & frakt</span>
                 </div>
               </div>
 

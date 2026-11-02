@@ -14,6 +14,12 @@ export interface Product {
   dimensions: string;
   compatibility: string;
   isPopular?: boolean;
+  comingSoon?: boolean;
+  comingSoonUrl?: string;
+  comingSoonCta?: string;
+  priceLabel?: string;
+  disableBulkDiscount?: boolean;
+  cardsInPack?: number;
 }
 
 export interface CartItem {
@@ -33,7 +39,7 @@ export interface CustomerOrderData {
   address: string;
   postalCode: string;
   city: string;
-  googleReviewUrl?: string; // Link for Google Review Bordskilt
+  googleReviewUrl?: string; // Link for Google Review NFC-kort
   menuUrl?: string; // Link for Meny-kort
   notes?: string;
   paymentMethod?: PaymentMethod;
@@ -45,7 +51,7 @@ export type OrderStatus = 'ny' | 'behandles' | 'sendt' | 'fullfort';
 
 export interface OrderChecklist {
   programmedChip: boolean; // 1. Brikke programmert
-  qrTested: boolean; // 2. QR-kode testet med mobil
+  qrTested: boolean; // 2. QR-kode / NFC testet med mobil
   packed: boolean; // 3. Pakket
   shipped: boolean; // 4. Sendt
 }
@@ -64,5 +70,3 @@ export interface OrderRecord {
   adminNotes?: string;
   checklist?: OrderChecklist;
 }
-
-

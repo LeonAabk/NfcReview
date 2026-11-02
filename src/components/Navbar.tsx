@@ -44,7 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </a>
 
         {/* Zone 2: Clean 4-6 text navigation links */}
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600">
+        <nav className="hidden md:flex items-center gap-6 lg:gap-7 text-sm font-medium text-slate-600">
           <a
             href="#home"
             onClick={(e) => {
@@ -63,16 +63,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             className="hover:text-blue-600 transition-colors"
           >
-            Produkter
+            Produkter & Priser
           </a>
           <a
             href="https://aabakstudio.com/SmakSync/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-blue-600 transition-colors inline-flex items-center gap-1 group text-slate-700"
-            title="SmakSync digitale menyer og NFC-bordkort for restauranter"
+            className="hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group text-slate-700"
+            title="SmakSync digitale menyer for bedrifter (kommer senere – test interaktiv demo)"
           >
-            <span>Menykort (SmakSync)</span>
+            <span>SmakSync Menyer</span>
+            <span className="text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded">Kommer</span>
             <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors" />
           </a>
           <a
@@ -101,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               e.preventDefault();
               handleLinkClick('simulator');
             }}
-            className="hover:text-blue-600 transition-colors"
+            className="hover:text-blue-600 transition-colors hidden lg:inline"
           >
             Test simulator
           </a>
@@ -177,8 +178,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-slate-50 text-slate-800"
             >
               <span className="flex items-center gap-1.5 font-medium">
-                <span>Menykort (SmakSync)</span>
-                <span className="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200/60 px-1.5 py-0.2 rounded font-semibold">Restaurant</span>
+                <span>SmakSync Menyer</span>
+                <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded font-semibold">Kommer senere</span>
               </span>
               <ExternalLink className="w-4 h-4 text-slate-400" />
             </a>
@@ -213,7 +214,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => handleLinkClick('products')}
               className="w-full py-3 bg-blue-600 text-white rounded-xl text-sm font-semibold flex items-center justify-center space-x-2 shadow-sm"
             >
-              <span>Se produkter</span>
+              <span>Se Google Review-kort</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

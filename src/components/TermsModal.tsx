@@ -58,28 +58,28 @@ export const TermsModal: React.FC<TermsModalProps> = ({ type, onClose }) => {
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">1. Generelt</h3>
                 <p>
-                  Disse salgsbetingelsene gjelder for alt salg av produkter fra NFC Review Norge til forbrukere og bedrifter i Norge. Ved bestilling aksepterer kjøperen disse vilkårene.
+                  Disse salgsbetingelsene gjelder for alt salg av produkter fra vår registrerte ungdomsbedrift (NFC Review UB) til bedrifter og forbrukere i Norge. Ved bestilling aksepterer kjøperen disse vilkårene.
                 </p>
               </div>
 
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">2. Priser og betaling</h3>
                 <p>
-                  Alle priser er oppgitt i norske kroner (NOK) inkludert merverdiavgift. Betaling skjer trygt og kryptert via Stripe (støtter Visa, Mastercard, Vipps, Apple Pay). Det tilkommer ingen skjulte eller månedlige gebyrer.
+                  Alle priser i nettbutikken er oppgitt i norske kroner (NOK) inkludert mva. (vi dekker merverdiavgift i oppgitt pris). Betaling skjer trygt og kryptert via Stripe / Kort / Vipps. Det tilkommer ingen skjulte eller månedlige gebyrer på våre Google Review NFC-kort.
                 </p>
               </div>
 
               <div>
-                <h3 className="text-sm font-bold text-slate-900 mb-1">3. Programmering og levering</h3>
+                <h3 className="text-sm font-bold text-slate-900 mb-1">3. Programmering, montering og levering</h3>
                 <p>
-                  Hvert produkt kodes til kjøperens oppgitte Google Bedriftsprofil før sending. Normal leveringstid er 2-4 virkedager med Posten/Bring. Fri frakt gjelder ved bestilling over 600 kr.
+                  Hvert NFC-kort leveres som et flatt kort med kraftig 3M™-klistremerke på baksiden og kodes ferdig til kjøperens oppgitte Google Bedriftsprofil før sending. Normal leveringstid er 2–4 virkedager med Posten/Bring. Fri frakt gjelder ved bestilling over 500 kr (inkludert i Synlighetspakken og Bedriftspakken).
                 </p>
               </div>
 
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">4. Reklamasjon og garanti</h3>
                 <p>
-                  Vi yter 2 års funksjonsgaranti på alle våre NFC-brikker og bordskilt. Dersom en brikke slutter å respondere, erstatter vi den kostnadsfritt.
+                  Vi yter 2 års funksjonsgaranti på alle våre NFC-kort. Dersom en NFC-brikke slutter å respondere ved normal bruk, erstatter vi kortet kostnadsfritt.
                 </p>
               </div>
             </>
@@ -88,28 +88,28 @@ export const TermsModal: React.FC<TermsModalProps> = ({ type, onClose }) => {
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">1. Behandlingsansvarlig</h3>
                 <p>
-                  NFC Review Norge er behandlingsansvarlig for personopplysninger som samles inn i forbindelse med bestillinger i vår nettbutikk.
+                  NFC Review UB er behandlingsansvarlig for personopplysninger som samles inn i forbindelse med bestillinger i vår nettbutikk.
                 </p>
               </div>
 
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">2. Hvilke opplysninger vi behandler</h3>
                 <p>
-                  Vi samler kun inn nødvendige opplysninger for å levere bestillingen din: Navn på kontaktperson, bedriftsnavn, leveringsadresse, e-postadresse og telefonnummer.
+                  Vi samler kun inn nødvendige opplysninger for å programmere og levere bestillingen din: Navn på kontaktperson, bedriftsnavn, leveringsadresse, e-postadresse, telefonnummer og bedriftens offentlige Google-anmeldelseslenke.
                 </p>
               </div>
 
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">3. Ingen sporing av sluttkunder</h3>
                 <p>
-                  Våre NFC-kort lagrer kun en direkte URL til din Google-anmeldelsesside. Kortene samler ingen persondata eller posisjonsdata fra kundene dine som tapper mobilen.
+                  Våre Google Review NFC-kort åpner kun din Google-anmeldelsesside i kundens nettleser/Google Maps. Kortene lagrer eller sporer ingen persondata fra kundene dine som tapper mobilen.
                 </p>
               </div>
 
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">4. Sikkerhet og tredjeparter</h3>
                 <p>
-                  Betalingsinformasjon behandles eksklusivt av Stripe, som er PCI-DSS sertifisert. Vi lagrer aldri kortnumre på våre servere.
+                  Betalingsinformasjon behandles eksklusivt av PCI-DSS-sertifiserte betalingsleverandører (Stripe). Vi lagrer aldri kortnumre.
                 </p>
               </div>
             </>

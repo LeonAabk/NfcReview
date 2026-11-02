@@ -5,9 +5,9 @@ export const HowItWorks: React.FC = () => {
   const steps = [
     {
       number: '01',
-      title: 'Kunden tapper kortet med mobilen',
+      title: 'Fest kortet – kunden tapper med mobilen',
       description:
-        'Kunden holder sin iPhone eller Android-telefon inntil NFC-kortet eller bordskiltet ditt. Ingen app eller forberedelse kreves.',
+        'Trekk av beskyttelsesfilmen på 3M™-klistremerket bakpå og fest kortet ved kassen, på disken eller på veggen. Kunden holder iPhone eller Android inntil – ingen app kreves.',
       subtext: 'Fungerer med alle moderne smarttelefoner.',
       icon: Smartphone,
       accentColor: 'text-blue-600 bg-blue-50 border-blue-200'
@@ -16,7 +16,7 @@ export const HowItWorks: React.FC = () => {
       number: '02',
       title: 'Sendes direkte til Google Review',
       description:
-        'Telefonen åpner umiddelbart bedriftens offisielle anmeldelsesside på Google Maps, ferdig med 5 stjerner klar til å bekreftes.',
+        'Telefonen åpner umiddelbart bedriftens offisielle anmeldelsesside på Google Maps, ferdig klar til å gi 5 stjerner med ett trykk.',
       subtext: 'Tar under 5 sekunder for kunden.',
       icon: ExternalLink,
       accentColor: 'text-amber-600 bg-amber-50 border-amber-200'
@@ -25,8 +25,8 @@ export const HowItWorks: React.FC = () => {
       number: '03',
       title: 'Høyere rangering og flere nye kunder',
       description:
-        'Flere positive anmeldelser heiser bedriften din til topps i lokale Google-søk. Du tiltrekker deg kontinuerlig nye kunder som stoler på deg.',
-      subtext: 'Bærekraftig vekst uten månedlige markedsføringsgebyrer.',
+        'Flere positive anmeldelser løfter bedriften din opp i lokale Google-søk. Du tiltrekker deg kontinuerlig nye kunder som stoler på deg.',
+      subtext: 'Engangskjøp (inkl. mva.) uten månedlige gebyrer.',
       icon: Trophy,
       accentColor: 'text-emerald-600 bg-emerald-50 border-emerald-200'
     }
@@ -50,7 +50,7 @@ export const HowItWorks: React.FC = () => {
 
         {/* 3 Step Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-          {steps.map((step, idx) => {
+          {steps.map((step) => {
             const Icon = step.icon;
             return (
               <div
@@ -94,10 +94,10 @@ export const HowItWorks: React.FC = () => {
             </div>
             <div>
               <h4 className="text-sm font-bold text-slate-900">
-                Ferdigtrykkede kort – vi koder din lenke før sending!
+                Ferdigtrykkede NFC-kort med 3M™-bakside – vi koder din lenke før sending!
               </h4>
               <p className="text-xs text-slate-600 mt-0.5">
-                Kortene og akrylskiltene er ferdigproduserte med profesjonell Google-branding, NFC-brikke og QR-kode. Du oppgir bare din anmeldelseslenke ved bestilling, så koder vi alt før vi shipper til din bedriftsadresse.
+                Våre flate Google Review NFC-kort har ripebestandig overflate, kraftig 3M™-monteringsfilm på baksiden og innebygd NTAG-brikke. Du oppgir bare din bedriftsprofil ved bestilling, så programmerer og tester vi kortene før utsending.
               </p>
             </div>
           </div>

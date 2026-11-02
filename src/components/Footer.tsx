@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin, ShieldCheck } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 interface FooterProps {
   onOpenTerms: () => void;
@@ -22,7 +22,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy, onOp
               <span className="bg-amber-400/20 text-amber-300 text-[10px] font-extrabold px-1.5 py-0.5 rounded border border-amber-400/30">UB</span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              En stolt norsk <strong>Ungdomsbedrift (UB)</strong> tilknyttet Ungt Entreprenørskap. Vi leverer kontaktløse Google Review-bordskilt og menykort for å løfte lokale serveringssteder og bedrifter.
+              En stolt norsk <strong>Ungdomsbedrift (UB)</strong> tilknyttet Ungt Entreprenørskap. Vi leverer kontaktløse Google Review NFC-kort med 3M™-feste for norske bedrifter – og utvikler SmakSync digitale menyer (kommer senere for serveringssteder).
             </p>
             <div className="inline-flex items-center space-x-1.5 text-[11px] text-amber-400 font-semibold bg-amber-400/10 px-2.5 py-1 rounded-md border border-amber-400/20">
               <span>🇳🇴 Samarbeid med Ungt Entreprenørskap</span>
@@ -42,7 +42,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy, onOp
                 <a href="#how-it-works" className="hover:text-white transition-colors">Slik fungerer det</a>
               </li>
               <li>
-                <a href="#products" className="hover:text-white transition-colors">Produktoversikt</a>
+                <a href="#products" className="hover:text-white transition-colors">Produkter & Priser (inkl. mva.)</a>
               </li>
               <li>
                 <a href="#simulator" className="hover:text-white transition-colors">Prøv simulator</a>
@@ -55,9 +55,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy, onOp
                   href="https://aabakstudio.com/SmakSync/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-emerald-400 hover:text-emerald-300 transition-colors inline-flex items-center gap-1 font-medium"
+                  className="text-amber-300 hover:text-amber-200 transition-colors inline-flex items-center gap-1 font-medium"
                 >
-                  <span>SmakSync Menyer ↗</span>
+                  <span>SmakSync Menyer (Kommer senere) ↗</span>
                 </a>
               </li>
             </ul>
@@ -110,7 +110,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy, onOp
                 <span>Storgata 15, 0155 Oslo</span>
               </div>
               <div className="text-[11px] text-slate-500 pt-1">
-                Org.nr: 928 341 552 MVA
+                Ungdomsbedrift (UB) · Alle priser inkl. mva.
               </div>
             </div>
           </div>

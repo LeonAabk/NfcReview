@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { CartItem } from '../types';
 import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck, ShoppingBag } from 'lucide-react';
-import { calculateBulkDiscount, FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from '../utils/discount';
+import { calculateCartDiscount, FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from '../utils/discount';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -38,13 +38,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
-  // Tiered bulk discount calculation
-  const bulkDiscount = calculateBulkDiscount(totalQuantity, subtotal);
-  const hasVolumeDiscount = bulkDiscount.percent > 0;
+  // Bundle-aligned discount calculation
+  const bulkDiscount = calculateCartDiscount(items);
+  const hasVolumeDiscount = bulkDiscount.amount > 0;
   const discountAmount = bulkDiscount.amount;
   const discountedSubtotal = subtotal - discountAmount;
 
-  // Free shipping based on subtotal or discounted subtotal
+  // Free shipping based on discounted subtotal
   const isFreeShipping = discountedSubtotal >= FREE_SHIPPING_THRESHOLD;
   const shippingFee = items.length === 0 ? 0 : isFreeShipping ? 0 : STANDARD_SHIPPING_FEE;
   const total = discountedSubtotal + shippingFee;
@@ -66,7 +66,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <ShoppingBag className="w-5 h-5 text-blue-600" />
               <h2 className="text-base sm:text-lg font-bold text-slate-900">Handlekurv</h2>
               <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-mono tabular-nums">
-                {totalQuantity} varer
+                {totalQuantity} {totalQuantity === 1 ? 'vare' : 'varer'}
               </span>
             </div>
             <button
@@ -79,7 +79,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           </div>
 
           {/* Volume Discount Notification Banner */}
-          {items.length > 0 && (
+          {items.length > 0 && (hasVolumeDiscount || bulkDiscount.nextTier) && (
             <div className={`px-6 py-2.5 text-xs border-b ${
               hasVolumeDiscount
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
@@ -98,17 +98,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
                   {bulkDiscount.nextTier && (
                     <p className="text-[11px] text-emerald-700 font-medium">
-                      Tips: Kjøp <strong>{bulkDiscount.nextTier.remaining} vare(r)</strong> til for <strong>{bulkDiscount.nextTier.percent}% bulk deal</strong>!
+                      Tips: Legg til <strong>{bulkDiscount.nextTier.remaining} stk</strong> til for bedriftspris (298 kr/stk)!
                     </p>
                   )}
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
                   <span>
-                    Kjøp <strong>{bulkDiscount.nextTier?.remaining} vare{(bulkDiscount.nextTier?.remaining || 0) > 1 ? 'r' : ''}</strong> til for å få <strong>10% bulk deal</strong>!
+                    Legg til <strong>{bulkDiscount.nextTier?.remaining} kort</strong> til for Synlighetspakken-pris (<strong>990 kr</strong> + fri frakt)!
                   </span>
                   <span className="text-[10px] uppercase font-bold text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-200">
-                    3+ STK
+                    3 STK
                   </span>
                 </div>
               )}
@@ -122,7 +122,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <span className="flex items-center space-x-1.5">
                   <Truck className="w-4 h-4 text-blue-600" />
                   {isFreeShipping ? (
-                    <span className="text-emerald-700 font-semibold">Gratis frakt oppnådd!</span>
+                    <span className="text-emerald-700 font-semibold">Gratis frakt med Posten inkludert!</span>
                   ) : (
                     <span>
                       Kjøp for <strong>{remainingForFreeShipping} kr</strong> til for fri frakt
@@ -150,7 +150,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div>
                   <h3 className="text-base font-bold text-slate-900">Handlekurven din er tom</h3>
                   <p className="text-xs text-slate-500 mt-1">
-                    Velg Google Review Bordskilt eller Meny-kort for å komme i gang.
+                    Velg Google Review NFC-kort eller Synlighetspakken for å komme i gang.
                   </p>
                 </div>
                 <button
@@ -167,7 +167,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   className="flex space-x-4 p-3 bg-slate-50/70 border border-slate-200 rounded-xl"
                 >
                   <div className="w-16 h-16 rounded-lg bg-slate-900 flex items-center justify-center text-white shrink-0 text-xs font-mono">
-                    {item.product.type === 'menu' ? 'MENY' : 'SKILT'}
+                    NFC
                   </div>
 
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
@@ -193,7 +193,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       )}
 
                       <p className="text-xs font-bold text-slate-800 font-mono mt-1">
-                        {item.product.price} kr
+                        {item.product.price} kr <span className="text-[10px] font-sans font-normal text-slate-500">inkl. mva</span>
                       </p>
                     </div>
 
@@ -233,7 +233,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <div className="p-4 sm:p-6 border-t border-slate-200 bg-slate-50/70 space-y-4">
               <div className="space-y-1.5 text-xs text-slate-600">
                 <div className="flex justify-between">
-                  <span>Delsum (ordinær pris):</span>
+                  <span>Delsum (inkl. mva):</span>
                   <span className={`font-mono ${hasVolumeDiscount ? 'line-through text-slate-400' : 'text-slate-900 font-semibold'}`}>
                     {subtotal} kr
                   </span>
@@ -257,35 +257,29 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
 
                 <div className="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200">
-                  <span>Totalsum:</span>
+                  <span>Totalsum (inkl. mva):</span>
                   <div className="text-right">
                     <span className="font-mono text-blue-600">{total} kr</span>
                     {hasVolumeDiscount && (
                       <p className="text-[10px] text-emerald-600 font-medium font-sans">
-                        Inkluderer {discountAmount} kr i kvantumsrabatt
+                        Inkluderer {discountAmount} kr i pakkerabatt
                       </p>
                     )}
                   </div>
                 </div>
               </div>
 
-              {hasVolumeDiscount && (
-                <div className="p-2.5 rounded-xl bg-emerald-100/70 border border-emerald-200 text-center text-xs text-emerald-800 font-bold">
-                  Du sparer {discountAmount} kr på denne bestillingen!
-                </div>
-              )}
-
               <button
                 onClick={onProceedToCheckout}
                 className="w-full py-4 sm:py-3.5 min-h-[48px] bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2 touch-manipulation active:scale-[0.99]"
               >
-                <span>Gå til kassen med Stripe</span>
+                <span>Gå til kassen</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
               <div className="flex items-center justify-center space-x-2 text-[11px] text-slate-500">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>256-bit SSL kryptert via Stripe Checkout</span>
+                <span>Trygg bestilling · Alle priser er inkl. mva.</span>
               </div>
             </div>
           )}

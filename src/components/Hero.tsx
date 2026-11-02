@@ -30,7 +30,7 @@ export const Hero: React.FC<HeroProps> = ({ onOrderClick, onSimulatorClick }) =>
               </div>
               <div className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200/90 shadow-xs px-3.5 py-1.5 rounded-full">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Nylansert 2026 · Støtt ungt entreprenørskap</span>
+                <span>Nylansert 2026 · Priser inkl. mva.</span>
               </div>
             </div>
 
@@ -41,7 +41,7 @@ export const Hero: React.FC<HeroProps> = ({ onOrderClick, onSimulatorClick }) =>
 
             {/* Subtitle */}
             <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
-              Gjestene holder bare mobilen inntil det kontaktløse akryl-bordskiltet eller meny-kortet. Google-anmeldelsessiden eller den digitale menyen din åpner seg lynraskt. Ingen app, ingen tasting, ingen friksjon.
+              Fest det flate, kontaktløse NFC-kortet rett på disken eller ved kassen med kraftig 3M™-klistremerke bakpå. Kundene holder bare mobilen inntil – og Google-anmeldelsessiden din åpnes lynraskt. Ingen app, ingen tasting, ingen månedlige gebyrer.
             </p>
 
             {/* Feature Bullets */}
@@ -52,11 +52,11 @@ export const Hero: React.FC<HeroProps> = ({ onOrderClick, onSimulatorClick }) =>
               </div>
               <div className="flex items-center space-x-2 text-xs font-medium text-slate-700">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Ferdig programmert</span>
+                <span>Flatt kort m/ 3M™-bakside</span>
               </div>
               <div className="flex items-center space-x-2 text-xs font-medium text-slate-700">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>NFC & QR på alle mobiler</span>
+                <span>Ferdig kodet for iPhone & Android</span>
               </div>
             </div>
 
@@ -66,7 +66,7 @@ export const Hero: React.FC<HeroProps> = ({ onOrderClick, onSimulatorClick }) =>
                 onClick={onOrderClick}
                 className="w-full sm:w-auto px-7 py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-base rounded-xl shadow-lg shadow-blue-500/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2.5"
               >
-                <span>Se bordskilt & meny-kort</span>
+                <span>Se Google Review-kort & pakker</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -79,14 +79,14 @@ export const Hero: React.FC<HeroProps> = ({ onOrderClick, onSimulatorClick }) =>
             </div>
 
             {/* Delivery & Security reassurance */}
-            <div className="pt-2 flex items-center justify-center lg:justify-start space-x-6 text-xs text-slate-500">
+            <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-xs text-slate-500">
               <div className="flex items-center space-x-1.5">
                 <Truck className="w-4 h-4 text-slate-400" />
-                <span>Rask levering med Posten</span>
+                <span>Rask levering med Posten (fri frakt over 500 kr)</span>
               </div>
               <div className="flex items-center space-x-1.5">
                 <ShieldCheck className="w-4 h-4 text-slate-400" />
-                <span>Trygg betaling med Stripe</span>
+                <span>Trygg betaling · Inkl. mva.</span>
               </div>
             </div>
           </div>
@@ -107,7 +107,7 @@ export const Hero: React.FC<HeroProps> = ({ onOrderClick, onSimulatorClick }) =>
                 {/* Floating NFC waves animation badge */}
                 <div className="absolute top-4 right-4 bg-blue-50 border border-blue-200/70 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center space-x-1.5">
                   <Zap className="w-3.5 h-3.5 fill-blue-600 text-blue-600 animate-pulse" />
-                  <span>NFC + QR TEKNOLOGI</span>
+                  <span>KONTAKTLØS NFC · 3M™</span>
                 </div>
 
                 <div className="mt-6 flex flex-col items-center">
@@ -137,29 +137,29 @@ export const Hero: React.FC<HeroProps> = ({ onOrderClick, onSimulatorClick }) =>
                     </div>
                   </div>
 
-                  {/* The NFC Review Stand & Menykort resting on surface */}
+                  {/* The NFC Review Card & upcoming Menykort resting on surface */}
                   <div className="relative mt-2 flex items-center justify-center w-full">
                     {/* The uploaded Google Review NFC Card photo resting on table */}
                     <div className="relative z-10 select-none transform hover:scale-[1.03] transition-transform duration-300 flex flex-col items-center">
                       <img
                         src={googleCardPhoto}
-                        alt="Google Review NFC Bordskilt"
+                        alt="Google Review NFC-kort med 3M-bakside"
                         className="w-56 sm:w-64 max-w-full h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.24)]"
                       />
                       {/* Physical contact shadow grounded on table surface */}
                       <div className="w-48 sm:w-56 h-3.5 bg-slate-900/25 blur-md rounded-full -mt-2.5" />
                     </div>
 
-                    {/* Black Menykort peeking behind */}
-                    <div className="absolute -right-2 sm:-right-4 -bottom-1 w-28 sm:w-32 aspect-[0.68/1] bg-black rounded-xl p-2.5 shadow-xl border border-stone-800 transform rotate-12 flex flex-col justify-between items-center text-center text-white pointer-events-none z-0">
+                    {/* Black Menykort peeking behind (Coming Soon) */}
+                    <div className="absolute -right-2 sm:-right-4 -bottom-1 w-28 sm:w-32 aspect-[0.68/1] bg-black/90 rounded-xl p-2.5 shadow-xl border border-stone-800 transform rotate-12 flex flex-col justify-between items-center text-center text-white pointer-events-none z-0 opacity-90">
                       <div className="w-5 h-5 rounded-full border border-white flex items-center justify-center text-[8px]">
                         🍽️
                       </div>
                       <div>
-                        <p className="text-[6.5px] text-stone-300">Tap for å se</p>
+                        <p className="text-[6.5px] text-stone-300">Digital</p>
                         <p className="text-[10px] font-black tracking-wider uppercase text-white">MENY</p>
                       </div>
-                      <span className="text-[6.5px] font-mono text-stone-400 bg-stone-900 px-1 py-0.5 rounded">NFC + QR</span>
+                      <span className="text-[6px] font-mono text-amber-300 bg-amber-950/80 border border-amber-700/50 px-1 py-0.5 rounded">KOMMER SNART</span>
                     </div>
                   </div>
                 </div>

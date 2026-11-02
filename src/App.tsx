@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Product, CartItem } from './types';
+import { PRODUCTS } from './data/products';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { HowItWorks } from './components/HowItWorks';
@@ -21,7 +22,7 @@ import { CheckoutModal } from './components/CheckoutModal';
 import { TermsModal } from './components/TermsModal';
 import { AdminOrdersModal } from './components/AdminOrdersModal';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
-import { calculateBulkDiscount, FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from './utils/discount';
+import { calculateCartDiscount, FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from './utils/discount';
 
 const CART_STORAGE_KEY = 'nfc_review_cart_v1';
 
@@ -34,7 +35,16 @@ export default function App() {
       if (!Array.isArray(parsed)) return [];
       return parsed
         .filter((item) => item && item.product && typeof item.quantity === 'number' && item.quantity > 0)
-        .map((item) => ({ ...item, quantity: Math.min(99, Math.max(1, Math.floor(item.quantity))) }));
+        .map((item) => {
+          const currentProduct = PRODUCTS.find((p) => p.id === item.product.id);
+          if (!currentProduct || currentProduct.comingSoon) return null;
+          return {
+            ...item,
+            product: currentProduct,
+            quantity: Math.min(99, Math.max(1, Math.floor(item.quantity)))
+          };
+        })
+        .filter((item): item is CartItem => item !== null);
     } catch {
       return [];
     }
@@ -80,6 +90,7 @@ export default function App() {
   }, [isCartOpen, isCheckoutOpen, isAdminOpen, activeLegalModal]);
 
   const handleAddToCart = (product: Product, quantity = 1, targetUrl?: string) => {
+    if (product.comingSoon) return;
     const validQty = Math.min(99, Math.max(1, Math.floor(quantity)));
     setCartItems((prev) => {
       const existingIdx = prev.findIndex(
@@ -144,10 +155,10 @@ export default function App() {
 
   const totalItemsCount = cartItems.reduce((acc, curr) => acc + curr.quantity, 0);
 
-  // Pricing & Tiered Bulk Discount Logic
+  // Pricing & Bundle-Aligned Discount Logic
   const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const bulkDiscount = calculateBulkDiscount(totalItemsCount, subtotal);
-  const hasVolumeDiscount = bulkDiscount.percent > 0;
+  const bulkDiscount = calculateCartDiscount(cartItems);
+  const hasVolumeDiscount = bulkDiscount.amount > 0;
   const discountAmount = bulkDiscount.amount;
   const discountedSubtotal = subtotal - discountAmount;
   const shippingFee = cartItems.length === 0 ? 0 : discountedSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
@@ -166,20 +177,20 @@ export default function App() {
           >
             <span className="font-semibold text-zinc-200">Aabak Studio Økosystem</span>
             <span className="text-zinc-600">·</span>
-            <span>Driver du restaurant? Se våre digitale menyer &amp; NFC-bordkort på SmakSync</span>
+            <span>Kommer senere for bedrifter: Digitale menyer &amp; NFC-bordkort på SmakSync (se live-demo)</span>
             <span className="font-bold text-zinc-100 group-hover:translate-x-0.5 transition-transform">→</span>
           </a>
         </div>
       </div>
 
-      {/* Top Banner: Ungdomsbedrift & Bulk deals notification */}
-      <div className="bg-slate-900 text-white text-[11px] py-1.5 px-4 text-center font-medium tracking-wide flex items-center justify-center space-x-2 border-b border-slate-800">
+      {/* Top Banner: Ungdomsbedrift & Pakketilbud notification */}
+      <div className="bg-slate-900 text-white text-[11px] py-1.5 px-4 text-center font-medium tracking-wide flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 border-b border-slate-800">
         <span className="bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded text-[10px]">UB</span>
         <span>Stolt Norsk Ungdomsbedrift</span>
         <span className="text-slate-500 hidden sm:inline">·</span>
         <span className="hidden sm:inline">Fri frakt over {FREE_SHIPPING_THRESHOLD} kr</span>
         <span className="text-slate-500">·</span>
-        <span>🔥 Bulk deals: 10% ved 3+ · 15% ved 5+ · 20% ved 10+</span>
+        <span>⭐ Synlighetspakken (3 kort): 990 kr inkl. mva. &amp; fri frakt</span>
       </div>
 
       {/* Main Navigation */}
@@ -199,14 +210,14 @@ export default function App() {
         {/* Products Listing Grid */}
         <ProductList onAddToCart={handleAddToCart} />
 
-        {/* 3. Dedikert Restaurant-seksjon ("Full pakke for serveringssteder") */}
-        <RestaurantEcosystemSection />
+        {/* 3D Exploded View Video & Hardware Quality Breakdown */}
+        <ProductTechVideoSection />
 
         {/* How It Works (3 Steps) */}
         <HowItWorks />
 
-        {/* 3D Exploded View Video & Hardware Quality Breakdown */}
-        <ProductTechVideoSection />
+        {/* Dedikert Restaurant-seksjon ("Kommer senere for serveringssteder") */}
+        <RestaurantEcosystemSection />
 
         {/* Dedicated Youth Enterprise (Ungdomsbedrift - UB) Section */}
         <AboutUb onOrderClick={() => handleNavigate('products')} />
@@ -247,7 +258,7 @@ export default function App() {
                   Se handlekurv ({totalItemsCount})
                 </p>
                 <p className="text-[10px] text-slate-300 font-medium">
-                  {hasVolumeDiscount ? `🎉 ${bulkDiscount.tierLabel} aktivert` : 'Trykk for å gå til kassen'}
+                  {hasVolumeDiscount ? `🎉 ${bulkDiscount.tierLabel}` : 'Trykk for å gå til kassen'}
                 </p>
               </div>
             </div>

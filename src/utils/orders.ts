@@ -239,7 +239,7 @@ Bestilte varer:
 ${order.items.map((i) => `- ${i.quantity}x ${i.product.name}`).join('\n')}
 Totalsum: ${order.total} kr
 
-Kortene og bordskiltene er 100% klare til bruk rett ut av esken – det er bare å plassere dem på disken eller bordene!
+NFC-kortene er 100% klare til bruk rett ut av esken – det er bare å feste dem på disken eller ved kassen med 3M-baksiden!
 
 Tusen takk for at du støtter vår ungdomsbedrift! Ta gjerne kontakt med oss på ${STORE_NOTIFICATION_EMAIL} hvis du lurer på noe.
 
