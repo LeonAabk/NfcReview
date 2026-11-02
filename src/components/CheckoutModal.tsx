@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { CartItem, CustomerOrderData, OrderRecord, PaymentMethod } from '../types';
 import {
   X,
@@ -19,7 +19,8 @@ import {
   ExternalLink,
   Search,
   Check,
-  Loader2
+  Loader2,
+  MapPin
 } from 'lucide-react';
 import { saveOrder, generateStoreOwnerNotificationEmail } from '../utils/orders';
 import { sanitizeText, sanitizePhone, isValidEmail, sanitizeSafeUrl } from '../utils/security';
@@ -46,6 +47,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onClearCart
 }) => {
   const [showGoogleGuide, setShowGoogleGuide] = useState(false);
+  const [reviewInputMode, setReviewInputMode] = useState<'url' | 'lookup'>('url');
+  const [googleLookupName, setGoogleLookupName] = useState('');
+  const [googleLookupCity, setGoogleLookupCity] = useState('');
   const [formData, setFormData] = useState<CustomerOrderData>({
     companyName: '',
     orgNumber: '',
@@ -152,6 +156,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       return;
     }
 
+    const cleanLookupName = sanitizeText(googleLookupName || cleanCompany);
+    const cleanLookupCity = sanitizeText(googleLookupCity || cleanCity);
+
+    if (hasReviewProducts && reviewInputMode === 'lookup' && (!cleanLookupName || !cleanLookupCity)) {
+      setFormError('Vennligst oppgi virksomhetens navn og by slik at vi kan finne din Google Place ID.');
+      return;
+    }
+
+    if (hasReviewProducts && reviewInputMode === 'url' && !sanitizeText(formData.googleReviewUrl)) {
+      setFormError('Vennligst legg inn din Google Review-lenke, eller velg «Finn for meg» under.');
+      return;
+    }
+
     setIsProcessing(true);
 
     const sanitizedCustomer: CustomerOrderData = {
@@ -163,7 +180,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       address: cleanAddress,
       postalCode: cleanPostal,
       city: cleanCity,
-      googleReviewUrl: sanitizeText(formData.googleReviewUrl),
+      reviewInputMode: hasReviewProducts ? reviewInputMode : undefined,
+      googleLookupName: hasReviewProducts && reviewInputMode === 'lookup' ? cleanLookupName : undefined,
+      googleLookupCity: hasReviewProducts && reviewInputMode === 'lookup' ? cleanLookupCity : undefined,
+      googleReviewUrl: hasReviewProducts && reviewInputMode === 'lookup'
+        ? `Søk via Place ID: ${cleanLookupName} (${cleanLookupCity})`
+        : sanitizeText(formData.googleReviewUrl),
       menuUrl: sanitizeText(formData.menuUrl),
       notes: sanitizeText(formData.notes),
       paymentMethod: 'vipps_card'
@@ -366,7 +388,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
               {formData.googleReviewUrl && (
                 <p className="text-blue-700 font-medium break-all">
-                  Google Review-lenke: {formData.googleReviewUrl}
+                  {savedOrderRecord?.customer.reviewInputMode === 'lookup'
+                    ? `Place ID oppslag: ${savedOrderRecord.customer.googleLookupName || formData.companyName} (${savedOrderRecord.customer.googleLookupCity || formData.city})`
+                    : `Google Review-lenke: ${formData.googleReviewUrl}`}
                 </p>
               )}
               {formData.menuUrl && (
@@ -603,138 +627,237 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
                 {/* If Google Review Bordskilt is in cart */}
                 {(hasReviewProducts || (!hasReviewProducts && !hasMenuProducts)) && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-xs sm:text-[11px] font-bold text-slate-800">
-                        Google Review-lenke (for NFC-kortene):
-                      </label>
+                  <div className="space-y-3">
+                    {/* Valg av metode for Google Review */}
+                    <div className="grid grid-cols-2 gap-1.5 p-1 bg-white/90 rounded-xl border border-blue-200">
                       <button
                         type="button"
-                        onClick={() => setShowGoogleGuide(!showGoogleGuide)}
-                        className="inline-flex items-center space-x-1 text-xs text-blue-700 hover:text-blue-900 font-bold underline touch-manipulation"
+                        onClick={() => setReviewInputMode('url')}
+                        className={`py-2 px-2.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-1.5 touch-manipulation ${
+                          reviewInputMode === 'url'
+                            ? 'bg-blue-600 text-white shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                        }`}
                       >
-                        <HelpCircle className="w-3.5 h-3.5" />
-                        <span>{showGoogleGuide ? 'Skjul veileder' : 'Finn min Google-lenke (3 steg)'}</span>
+                        <span>ðŸ”— Lim inn lenke</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setReviewInputMode('lookup');
+                          if (!googleLookupName && formData.companyName) {
+                            setGoogleLookupName(formData.companyName);
+                          }
+                          if (!googleLookupCity && formData.city) {
+                            setGoogleLookupCity(formData.city);
+                          }
+                        }}
+                        className={`py-2 px-2.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-1.5 touch-manipulation ${
+                          reviewInputMode === 'lookup'
+                            ? 'bg-blue-600 text-white shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                        }`}
+                      >
+                        <span>ðŸ” Finn for meg (Bedrift & By)</span>
                       </button>
                     </div>
 
-                    <input
-                      type="text"
-                      required={hasReviewProducts}
-                      value={formData.googleReviewUrl || ''}
-                      onChange={(e) => setFormData({ ...formData, googleReviewUrl: e.target.value })}
-                      placeholder="https://g.page/r/.../review eller f.eks. 'Café Sentrum Oslo'"
-                      className="w-full text-base sm:text-xs py-3 px-3.5 sm:py-2.5 sm:px-3 bg-white border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900 min-h-[44px]"
-                    />
-
-                    {/* 3-Step Visual Guide Component */}
-                    {showGoogleGuide && (
-                      <div className="p-4 bg-white rounded-xl border border-blue-200 shadow-sm space-y-3.5 animate-in fade-in duration-200 text-xs">
-                        <div className="flex items-center justify-between border-b border-blue-100 pb-2">
-                          <span className="font-extrabold text-blue-900 flex items-center space-x-1.5 text-xs sm:text-sm">
-                            <span>📍</span>
-                            <span>3 enkle steg for å finne anmeldelseslenken din:</span>
-                          </span>
+                    {reviewInputMode === 'url' ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-xs sm:text-[11px] font-bold text-slate-800">
+                            Google Review-lenke (for NFC-kortene):
+                          </label>
                           <button
                             type="button"
-                            onClick={() => setShowGoogleGuide(false)}
-                            className="text-slate-400 hover:text-slate-600 p-1"
-                            aria-label="Lukk veileder"
+                            onClick={() => setShowGoogleGuide(!showGoogleGuide)}
+                            className="inline-flex items-center space-x-1 text-xs text-blue-700 hover:text-blue-900 font-bold underline touch-manipulation"
                           >
-                            <X className="w-4 h-4" />
+                            <HelpCircle className="w-3.5 h-3.5" />
+                            <span>{showGoogleGuide ? 'Skjul veileder' : 'Finn min Google-lenke (3 steg)'}</span>
                           </button>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-slate-700">
-                          {/* Steg 1 */}
-                          <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-100 space-y-1.5">
-                            <div className="flex items-center space-x-1.5 text-blue-900 font-bold">
-                              <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]">1</span>
-                              <span>Søk på bedriften</span>
-                            </div>
-                            <p className="text-[11px] text-slate-600">
-                              Søk opp ditt eget bedriftsnavn på Google (eller logg inn på Google Business Profile).
-                            </p>
-                            <a
-                              href={`https://www.google.com/search?q=${encodeURIComponent(formData.companyName ? `${formData.companyName} google anmeldelser` : 'min bedrift google anmeldelser')}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center space-x-1 text-[11px] font-bold text-blue-700 hover:underline pt-1"
-                            >
-                              <Search className="w-3 h-3" />
-                              <span>Søk på Google ↗</span>
-                            </a>
-                          </div>
+                        <input
+                          type="text"
+                          required={hasReviewProducts && reviewInputMode === 'url'}
+                          value={formData.googleReviewUrl || ''}
+                          onChange={(e) => setFormData({ ...formData, googleReviewUrl: e.target.value })}
+                          placeholder="https://g.page/r/.../review"
+                          className="w-full text-base sm:text-xs py-3 px-3.5 sm:py-2.5 sm:px-3 bg-white border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900 min-h-[44px]"
+                        />
 
-                          {/* Steg 2 */}
-                          <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-100 space-y-1.5">
-                            <div className="flex items-center space-x-1.5 text-blue-900 font-bold">
-                              <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]">2</span>
-                              <span>«Be om anmeldelser»</span>
-                            </div>
-                            <p className="text-[11px] text-slate-600">
-                              Klikk på knappen «Be om anmeldelser» eller stjerne-ikonet i din bedriftsprofil.
-                            </p>
-                            <span className="inline-block text-[10px] bg-white px-1.5 py-0.5 rounded border border-blue-200 text-blue-800 font-semibold">
-                              ⭐ Få flere anmeldelser
-                            </span>
-                          </div>
-
-                          {/* Steg 3 */}
-                          <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-100 space-y-1.5">
-                            <div className="flex items-center space-x-1.5 text-blue-900 font-bold">
-                              <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]">3</span>
-                              <span>Kopiér & lim inn</span>
-                            </div>
-                            <p className="text-[11px] text-slate-600">
-                              Kopiér den korte lenken (f.eks. <span className="font-mono text-[10px]">g.page/r/...</span>) og lim inn i feltet her.
-                            </p>
-                            {formData.googleReviewUrl && (
-                              <span className="text-[11px] text-emerald-700 font-bold flex items-center space-x-1">
-                                <Check className="w-3 h-3" />
-                                <span>Lenke lagt inn!</span>
+                        {/* 3-Step Visual Guide Component */}
+                        {showGoogleGuide && (
+                          <div className="p-4 bg-white rounded-xl border border-blue-200 shadow-sm space-y-3.5 animate-in fade-in duration-200 text-xs">
+                            <div className="flex items-center justify-between border-b border-blue-100 pb-2">
+                              <span className="font-extrabold text-blue-900 flex items-center space-x-1.5 text-xs sm:text-sm">
+                                <span>ðŸ“</span>
+                                <span>3 enkle steg for Ã¥ finne anmeldelseslenken din:</span>
                               </span>
+                              <button
+                                type="button"
+                                onClick={() => setShowGoogleGuide(false)}
+                                className="text-slate-400 hover:text-slate-600 p-1"
+                                aria-label="Lukk veileder"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-slate-700">
+                              {/* Steg 1 */}
+                              <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-100 space-y-1.5">
+                                <div className="flex items-center space-x-1.5 text-blue-900 font-bold">
+                                  <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]">1</span>
+                                  <span>SÃ¸k pÃ¥ bedriften</span>
+                                </div>
+                                <p className="text-[11px] text-slate-600">
+                                  SÃ¸k opp ditt eget bedriftsnavn pÃ¥ Google (eller logg inn pÃ¥ Google Business Profile).
+                                </p>
+                                <a
+                                  href={`https://www.google.com/search?q=${encodeURIComponent(formData.companyName ? `${formData.companyName} google anmeldelser` : 'min bedrift google anmeldelser')}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center space-x-1 text-[11px] font-bold text-blue-700 hover:underline pt-1"
+                                >
+                                  <Search className="w-3 h-3" />
+                                  <span>SÃ¸k pÃ¥ Google â†—</span>
+                                </a>
+                              </div>
+
+                              {/* Steg 2 */}
+                              <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-100 space-y-1.5">
+                                <div className="flex items-center space-x-1.5 text-blue-900 font-bold">
+                                  <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]">2</span>
+                                  <span>Â«Be om anmeldelserÂ»</span>
+                                </div>
+                                <p className="text-[11px] text-slate-600">
+                                  Klikk pÃ¥ knappen Â«Be om anmeldelserÂ» eller stjerne-ikonet i din bedriftsprofil.
+                                </p>
+                                <span className="inline-block text-[10px] bg-white px-1.5 py-0.5 rounded border border-blue-200 text-blue-800 font-semibold">
+                                  â­ FÃ¥ flere anmeldelser
+                                </span>
+                              </div>
+
+                              {/* Steg 3 */}
+                              <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-100 space-y-1.5">
+                                <div className="flex items-center space-x-1.5 text-blue-900 font-bold">
+                                  <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]">3</span>
+                                  <span>KopiÃ©r & lim inn</span>
+                                </div>
+                                <p className="text-[11px] text-slate-600">
+                                  KopiÃ©r den korte lenken (f.eks. <span className="font-mono text-[10px]">g.page/r/...</span>) og lim inn i feltet her.
+                                </p>
+                                {formData.googleReviewUrl && (
+                                  <span className="text-[11px] text-emerald-700 font-bold flex items-center space-x-1">
+                                    <Check className="w-3 h-3" />
+                                    <span>Lenke lagt inn!</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="pt-1 flex justify-end">
+                              <button
+                                type="button"
+                                onClick={() => setShowGoogleGuide(false)}
+                                className="text-xs text-blue-700 hover:text-blue-900 font-semibold px-2 py-1 rounded hover:bg-blue-50"
+                              >
+                                Lukk veileder
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {!showGoogleGuide && (
+                          <div className="p-2.5 bg-white/90 rounded-lg border border-blue-200/60 text-[11px] sm:text-[10px] text-slate-600 flex items-center justify-between">
+                            <span>ðŸ’¡ Tips: Har du ikke lenken klar? Velg Â«Finn for megÂ» ovenfor.</span>
+                            {formData.googleReviewUrl && formData.googleReviewUrl.startsWith('http') && sanitizeSafeUrl(formData.googleReviewUrl) && (
+                              <a
+                                href={sanitizeSafeUrl(formData.googleReviewUrl) || undefined}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-700 font-bold hover:underline flex items-center space-x-1 shrink-0 ml-2"
+                              >
+                                <span>Test lenke</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
                             )}
                           </div>
-                        </div>
-
-                        {/* Snarvei og trygg fallback */}
-                        <div className="p-2.5 bg-amber-50/90 rounded-lg border border-amber-200 text-[11px] text-amber-900 space-y-1">
-                          <p className="font-bold flex items-center space-x-1">
-                            <span>💡</span>
-                            <span>Finner du ikke lenken akkurat nå? Ingen problem!</span>
-                          </p>
-                          <p className="text-amber-800">
-                            Skriv bare inn bedriftsnavnet og byen din i feltet (f.eks. «{formData.companyName || 'Ditt Firma'} Oslo»). Vår ungdomsbedrift søker opp og koder inn din offisielle, direkte Google-lenke helt gratis før vi sender brikkene!
-                          </p>
-                        </div>
-
-                        <div className="pt-1 flex justify-end">
-                          <button
-                            type="button"
-                            onClick={() => setShowGoogleGuide(false)}
-                            className="text-xs text-blue-700 hover:text-blue-900 font-semibold px-2 py-1 rounded hover:bg-blue-50"
-                          >
-                            Lukk veileder
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {!showGoogleGuide && (
-                      <div className="p-2.5 bg-white/90 rounded-lg border border-blue-200/60 text-[11px] sm:text-[10px] text-slate-600 flex items-center justify-between">
-                        <span>💡 Tips: Klikk «Finn min Google-lenke» ovenfor hvis du ikke har lenken klar.</span>
-                        {formData.googleReviewUrl && formData.googleReviewUrl.startsWith('http') && sanitizeSafeUrl(formData.googleReviewUrl) && (
-                          <a
-                            href={sanitizeSafeUrl(formData.googleReviewUrl) || undefined}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-700 font-bold hover:underline flex items-center space-x-1 shrink-0 ml-2"
-                          >
-                            <span>Test lenke</span>
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
                         )}
+                      </div>
+                    ) : (
+                      /* Alternativ B: Finn for meg (Bedriftsnavn og by for Place ID) */
+                      <div className="space-y-3 bg-white p-3.5 sm:p-4 rounded-xl border border-blue-200 shadow-xs">
+                        <div className="flex items-start space-x-2 text-blue-900">
+                          <MapPin className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                          <div>
+                            <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                              Vi finner din Google Place ID for deg
+                            </h4>
+                            <p className="text-[11px] text-slate-600 leading-relaxed mt-0.5">
+                              Finner du ikke anmeldelseslenken din? Ingen problem! Oppgi bare virksomhetens navn og by, sÃ¥ finner vi din unike Google Place ID og koder inn den offisielle direkte-lenken for deg helt gratis fÃ¸r vi sender brikkene.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <label className="block text-xs font-bold text-slate-800">
+                                Bedriftsnavn (pÃ¥ Google Maps) *
+                              </label>
+                              {formData.companyName && googleLookupName !== formData.companyName && (
+                                <button
+                                  type="button"
+                                  onClick={() => setGoogleLookupName(formData.companyName)}
+                                  className="text-[10px] text-blue-600 hover:underline font-semibold"
+                                >
+                                  Bruk firmanavn
+                                </button>
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              required={hasReviewProducts && reviewInputMode === 'lookup'}
+                              value={googleLookupName}
+                              onChange={(e) => setGoogleLookupName(e.target.value)}
+                              placeholder="F.eks. CafÃ© Sentrum AS"
+                              className="w-full text-base sm:text-xs py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900 min-h-[44px]"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <label className="block text-xs font-bold text-slate-800">
+                                By / Sted *
+                              </label>
+                              {formData.city && googleLookupCity !== formData.city && (
+                                <button
+                                  type="button"
+                                  onClick={() => setGoogleLookupCity(formData.city)}
+                                  className="text-[10px] text-blue-600 hover:underline font-semibold"
+                                >
+                                  Bruk Â«${formData.city}Â»
+                                </button>
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              required={hasReviewProducts && reviewInputMode === 'lookup'}
+                              value={googleLookupCity}
+                              onChange={(e) => setGoogleLookupCity(e.target.value)}
+                              placeholder="F.eks. Oslo, Bergen, BodÃ¸"
+                              className="w-full text-base sm:text-xs py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900 min-h-[44px]"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="p-2.5 bg-blue-50/80 rounded-lg border border-blue-100 text-[11px] text-blue-900 flex items-center space-x-2">
+                          <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>VÃ¥r ungdomsbedrift slÃ¥r opp og koder inn direkte-lenken din fÃ¸r utsending!</span>
+                        </div>
                       </div>
                     )}
                   </div>

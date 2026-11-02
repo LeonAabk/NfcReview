@@ -283,7 +283,7 @@ ${order.customer.address}
 ${order.customer.postalCode} ${order.customer.city}
 
 LENKER SOM SKAL PROGRAMMERES PÅ NFC-BRIKKENE:
-${order.customer.googleReviewUrl ? `Google Review-lenke: ${order.customer.googleReviewUrl}` : 'Ingen Google-lenke'}
+${order.customer.reviewInputMode === 'lookup' ? `Google Review: Place ID oppslag! (${order.customer.googleLookupName || order.customer.companyName}, ${order.customer.googleLookupCity || order.customer.city})` : (order.customer.googleReviewUrl ? `Google Review-lenke: ${order.customer.googleReviewUrl}` : 'Ingen Google-lenke')}
 ${order.customer.menuUrl ? `Meny-lenke: ${order.customer.menuUrl}` : 'Ingen Meny-lenke'}
 
 BESTILTE VARER:

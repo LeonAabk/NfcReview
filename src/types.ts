@@ -40,6 +40,9 @@ export interface CustomerOrderData {
   postalCode: string;
   city: string;
   googleReviewUrl?: string; // Link for Google Review NFC-kort
+  reviewInputMode?: 'url' | 'lookup';
+  googleLookupName?: string;
+  googleLookupCity?: string;
   menuUrl?: string; // Link for Meny-kort
   notes?: string;
   paymentMethod?: PaymentMethod;

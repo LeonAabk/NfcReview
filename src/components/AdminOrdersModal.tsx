@@ -943,7 +943,39 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                                 Lenker som skal kodes
                               </span>
 
-                              {order.customer.googleReviewUrl ? (
+                              {order.customer.reviewInputMode === 'lookup' || (order.customer.googleReviewUrl && order.customer.googleReviewUrl.startsWith('Søk via Place ID')) ? (
+                                <div className="space-y-1.5 p-2.5 bg-amber-50/90 rounded-xl border border-amber-200">
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-bold text-amber-900 text-xs flex items-center space-x-1">
+                                      <span>🔍 Finn Place ID</span>
+                                    </span>
+                                    <span className="text-[10px] font-bold bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded">
+                                      Må programmeres
+                                    </span>
+                                  </div>
+                                  <p className="text-xs font-semibold text-slate-800">
+                                    Virksomhet: <strong className="text-blue-900">{order.customer.googleLookupName || order.customer.companyName}</strong> ({order.customer.googleLookupCity || order.customer.city})
+                                  </p>
+                                  <div className="flex flex-wrap gap-1.5 pt-1">
+                                    <a
+                                      href="https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center space-x-1 text-[11px] bg-blue-600 hover:bg-blue-700 text-white font-bold px-2.5 py-1 rounded-lg"
+                                    >
+                                      <span>Åpne Place ID Finder ↗</span>
+                                    </a>
+                                    <a
+                                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${order.customer.googleLookupName || order.customer.companyName} ${order.customer.googleLookupCity || order.customer.city}`)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center space-x-1 text-[11px] bg-white hover:bg-slate-50 text-slate-700 font-semibold px-2 py-1 rounded-lg border border-slate-300"
+                                    >
+                                      <span>Søk på Maps ↗</span>
+                                    </a>
+                                  </div>
+                                </div>
+                              ) : order.customer.googleReviewUrl ? (
                                 <div className="space-y-1">
                                   <div className="flex items-center justify-between">
                                     <span className="font-semibold text-slate-700">Google Review:</span>
@@ -1217,14 +1249,21 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-700 pt-1">
-                    {packingSlipOrder.customer.googleReviewUrl && (
+                    {packingSlipOrder.customer.reviewInputMode === 'lookup' || (packingSlipOrder.customer.googleReviewUrl && packingSlipOrder.customer.googleReviewUrl.startsWith('Søk via Place ID')) ? (
+                      <div className="p-2 bg-amber-50 rounded border border-amber-300">
+                        <span className="font-bold text-amber-950 block text-[11px]">Google Review (Place ID oppslag):</span>
+                        <span className="text-[11px] font-semibold text-slate-800">
+                          {packingSlipOrder.customer.googleLookupName || packingSlipOrder.customer.companyName} ({packingSlipOrder.customer.googleLookupCity || packingSlipOrder.customer.city})
+                        </span>
+                      </div>
+                    ) : packingSlipOrder.customer.googleReviewUrl ? (
                       <div className="p-2 bg-white rounded border border-blue-200">
                         <span className="font-bold text-slate-900 block text-[11px]">Google Review URL (Bordskilt):</span>
                         <span className="font-mono text-[10px] break-all text-blue-700 font-medium">
                           {packingSlipOrder.customer.googleReviewUrl}
                         </span>
                       </div>
-                    )}
+                    ) : null}
                     {packingSlipOrder.customer.menuUrl && (
                       <div className="p-2 bg-white rounded border border-amber-200">
                         <span className="font-bold text-slate-900 block text-[11px]">Meny URL (Menykort):</span>
