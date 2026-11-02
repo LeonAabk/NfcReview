@@ -639,7 +639,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                         }`}
                       >
-                        <span>ðŸ”— Lim inn lenke</span>
+                        <span>🔗 Lim inn lenke</span>
                       </button>
                       <button
                         type="button"
@@ -658,7 +658,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                         }`}
                       >
-                        <span>ðŸ” Finn for meg (Bedrift & By)</span>
+                        <span>🔍 Finn for meg (Bedrift & By)</span>
                       </button>
                     </div>
 
@@ -692,8 +692,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                           <div className="p-4 bg-white rounded-xl border border-blue-200 shadow-sm space-y-3.5 animate-in fade-in duration-200 text-xs">
                             <div className="flex items-center justify-between border-b border-blue-100 pb-2">
                               <span className="font-extrabold text-blue-900 flex items-center space-x-1.5 text-xs sm:text-sm">
-                                <span>ðŸ“</span>
-                                <span>3 enkle steg for Ã¥ finne anmeldelseslenken din:</span>
+                                <span>📍</span>
+                                <span>3 enkle steg for å finne anmeldelseslenken din:</span>
                               </span>
                               <button
                                 type="button"
@@ -710,10 +710,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                               <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-100 space-y-1.5">
                                 <div className="flex items-center space-x-1.5 text-blue-900 font-bold">
                                   <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]">1</span>
-                                  <span>SÃ¸k pÃ¥ bedriften</span>
+                                  <span>Søk på bedriften</span>
                                 </div>
                                 <p className="text-[11px] text-slate-600">
-                                  SÃ¸k opp ditt eget bedriftsnavn pÃ¥ Google (eller logg inn pÃ¥ Google Business Profile).
+                                  Søk opp ditt eget bedriftsnavn på Google (eller logg inn på Google Business Profile).
                                 </p>
                                 <a
                                   href={`https://www.google.com/search?q=${encodeURIComponent(formData.companyName ? `${formData.companyName} google anmeldelser` : 'min bedrift google anmeldelser')}`}
@@ -722,7 +722,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                                   className="inline-flex items-center space-x-1 text-[11px] font-bold text-blue-700 hover:underline pt-1"
                                 >
                                   <Search className="w-3 h-3" />
-                                  <span>SÃ¸k pÃ¥ Google â†—</span>
+                                  <span>Søk på Google ↗</span>
                                 </a>
                               </div>
 
@@ -730,13 +730,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                               <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-100 space-y-1.5">
                                 <div className="flex items-center space-x-1.5 text-blue-900 font-bold">
                                   <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]">2</span>
-                                  <span>Â«Be om anmeldelserÂ»</span>
+                                  <span>«Be om anmeldelser»</span>
                                 </div>
                                 <p className="text-[11px] text-slate-600">
-                                  Klikk pÃ¥ knappen Â«Be om anmeldelserÂ» eller stjerne-ikonet i din bedriftsprofil.
+                                  Klikk på knappen «Be om anmeldelser» eller stjerne-ikonet i din bedriftsprofil.
                                 </p>
                                 <span className="inline-block text-[10px] bg-white px-1.5 py-0.5 rounded border border-blue-200 text-blue-800 font-semibold">
-                                  â­ FÃ¥ flere anmeldelser
+                                  ⭐ Få flere anmeldelser
                                 </span>
                               </div>
 
@@ -744,10 +744,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                               <div className="p-2.5 bg-blue-50/70 rounded-xl border border-blue-100 space-y-1.5">
                                 <div className="flex items-center space-x-1.5 text-blue-900 font-bold">
                                   <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px]">3</span>
-                                  <span>KopiÃ©r & lim inn</span>
+                                  <span>Kopiér & lim inn</span>
                                 </div>
                                 <p className="text-[11px] text-slate-600">
-                                  KopiÃ©r den korte lenken (f.eks. <span className="font-mono text-[10px]">g.page/r/...</span>) og lim inn i feltet her.
+                                  Kopiér den korte lenken (f.eks. <span className="font-mono text-[10px]">g.page/r/...</span>) og lim inn i feltet her.
                                 </p>
                                 {formData.googleReviewUrl && (
                                   <span className="text-[11px] text-emerald-700 font-bold flex items-center space-x-1">
@@ -772,7 +772,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
                         {!showGoogleGuide && (
                           <div className="p-2.5 bg-white/90 rounded-lg border border-blue-200/60 text-[11px] sm:text-[10px] text-slate-600 flex items-center justify-between">
-                            <span>ðŸ’¡ Tips: Har du ikke lenken klar? Velg Â«Finn for megÂ» ovenfor.</span>
+                            <span>💡 Tips: Har du ikke lenken klar? Velg «Finn for meg» ovenfor.</span>
                             {formData.googleReviewUrl && formData.googleReviewUrl.startsWith('http') && sanitizeSafeUrl(formData.googleReviewUrl) && (
                               <a
                                 href={sanitizeSafeUrl(formData.googleReviewUrl) || undefined}
@@ -797,7 +797,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                               Vi finner din Google Place ID for deg
                             </h4>
                             <p className="text-[11px] text-slate-600 leading-relaxed mt-0.5">
-                              Finner du ikke anmeldelseslenken din? Ingen problem! Oppgi bare virksomhetens navn og by, sÃ¥ finner vi din unike Google Place ID og koder inn den offisielle direkte-lenken for deg helt gratis fÃ¸r vi sender brikkene.
+                              Finner du ikke anmeldelseslenken din? Ingen problem! Oppgi bare virksomhetens navn og by, så finner vi din unike Google Place ID og koder inn den offisielle direkte-lenken for deg helt gratis før vi sender brikkene.
                             </p>
                           </div>
                         </div>
@@ -806,7 +806,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                           <div className="space-y-1">
                             <div className="flex items-center justify-between">
                               <label className="block text-xs font-bold text-slate-800">
-                                Bedriftsnavn (pÃ¥ Google Maps) *
+                                Bedriftsnavn (på Google Maps) *
                               </label>
                               {formData.companyName && googleLookupName !== formData.companyName && (
                                 <button
@@ -823,7 +823,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                               required={hasReviewProducts && reviewInputMode === 'lookup'}
                               value={googleLookupName}
                               onChange={(e) => setGoogleLookupName(e.target.value)}
-                              placeholder="F.eks. CafÃ© Sentrum AS"
+                              placeholder="F.eks. Café Sentrum AS"
                               className="w-full text-base sm:text-xs py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900 min-h-[44px]"
                             />
                           </div>
@@ -839,7 +839,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                                   onClick={() => setGoogleLookupCity(formData.city)}
                                   className="text-[10px] text-blue-600 hover:underline font-semibold"
                                 >
-                                  Bruk Â«${formData.city}Â»
+                                  Bruk «${formData.city}»
                                 </button>
                               )}
                             </div>
@@ -848,7 +848,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                               required={hasReviewProducts && reviewInputMode === 'lookup'}
                               value={googleLookupCity}
                               onChange={(e) => setGoogleLookupCity(e.target.value)}
-                              placeholder="F.eks. Oslo, Bergen, BodÃ¸"
+                              placeholder="F.eks. Oslo, Bergen, Bodø"
                               className="w-full text-base sm:text-xs py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900 min-h-[44px]"
                             />
                           </div>
@@ -856,7 +856,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
                         <div className="p-2.5 bg-blue-50/80 rounded-lg border border-blue-100 text-[11px] text-blue-900 flex items-center space-x-2">
                           <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          <span>VÃ¥r ungdomsbedrift slÃ¥r opp og koder inn direkte-lenken din fÃ¸r utsending!</span>
+                          <span>Vår ungdomsbedrift slår opp og koder inn direkte-lenken din før utsending!</span>
                         </div>
                       </div>
                     )}

@@ -35,7 +35,7 @@ export const LiveSimulator: React.FC = () => {
             Prøv selv: Slik opplever kunden det
           </h2>
           <p className="mt-3 text-slate-300 text-base">
-            Se hvorfor 8 av 10 kunder legger igjen 5 stjerner når terskelen er borte. Klikk på kortet for å simulere en NFC-tap!
+            Se hvordan det fungerer for kunden – uten app og uten tasting. Klikk på kortet for å simulere en NFC-tap!
           </p>
 
           {/* Quick Business Name Customizer */}

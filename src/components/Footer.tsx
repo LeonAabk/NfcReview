@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, MapPin } from 'lucide-react';
 
 interface FooterProps {
   onOpenTerms: () => void;
@@ -86,7 +86,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy, onOp
                 </button>
               </li>
               <li className="pt-2 text-[11px] text-slate-500">
-                100% GDPR-kompatibel. Ingen sporing av kundenes personvern eller mobilenhet.
+                Ingen sporing av kundenes personvern eller mobilenhet.
               </li>
             </ul>
           </div>
@@ -99,15 +99,11 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy, onOp
             <div className="space-y-2 text-xs text-slate-400">
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>hei@nfcreview.no</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Phone className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>+47 22 00 11 22</span>
+                <span>aabakstudio@gmail.com</span>
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>Storgata 15, 0155 Oslo</span>
+                <span>Lekeparkvegen 15, 2319 Hamar</span>
               </div>
               <div className="text-[11px] text-slate-500 pt-1">
                 Ungdomsbedrift (UB) · Alle priser inkl. mva.

@@ -146,7 +146,7 @@ export const ProductList: React.FC<ProductListProps> = ({ onAddToCart }) => {
             <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
             <div>
               <p className="text-xs font-bold text-slate-900">Priser inkl. mva. &amp; garanti</p>
-              <p className="text-[11px] text-slate-500 mt-0.5">Vi dekker mva. – 30 dagers åpent kjøp og 2 års funksjonsgaranti.</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">Vi dekker mva. – 2 års funksjonsgaranti.</p>
             </div>
           </div>
         </div>

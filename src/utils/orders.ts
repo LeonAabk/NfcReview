@@ -1,7 +1,7 @@
 import { OrderRecord, OrderStatus, CustomerOrderData, CartItem, OrderChecklist } from '../types';
 
 const ORDERS_STORAGE_KEY = 'nfc_review_orders_v1';
-const STORE_NOTIFICATION_EMAIL = 'Leon.aabak@gmail.com';
+const STORE_NOTIFICATION_EMAIL = 'aabakstudio@gmail.com';
 
 export function getStoredOrders(): OrderRecord[] {
   try {

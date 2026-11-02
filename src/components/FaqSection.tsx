@@ -21,7 +21,7 @@ export const FaqSection: React.FC = () => {
             Alt du trenger å vite om NFC-anmeldelseskort
           </h2>
           <p className="mt-2 text-slate-600 text-sm">
-            Finner du ikke svaret du leter etter? Kontakt oss gjerne på hei@nfcreview.no.
+            Finner du ikke svaret du leter etter? Kontakt oss gjerne på aabakstudio@gmail.com.
           </p>
         </div>
 

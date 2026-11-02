@@ -1176,7 +1176,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 mt-0.5">Tilknyttet Ungt Entreprenørskap</p>
-                    <p className="text-xs text-slate-600">Kontakt: Leon.aabak@gmail.com</p>
+                    <p className="text-xs text-slate-600">Kontakt: aabakstudio@gmail.com</p>
                   </div>
 
                   <div className="text-right">
@@ -1223,7 +1223,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">AVSENDER:</p>
                       <p className="font-bold text-slate-800">NFC Review UB (Ungdomsbedrift)</p>
                       <p>v/ Leon Åbak</p>
-                      <p>E-post: Leon.aabak@gmail.com</p>
+                      <p>E-post: aabakstudio@gmail.com</p>
                       <p className="pt-1 text-[11px] font-semibold text-blue-700">
                         Innhold: NFC Google Anmeldelseskort / Bordskilt
                       </p>

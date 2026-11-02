@@ -75,7 +75,7 @@ export const RestaurantEcosystemSection: React.FC = () => {
                 <span className="text-xs text-zinc-500 font-medium">Lovpålagt & trygt</span>
               </div>
               <h3 className="text-lg font-bold text-white mb-2">
-                Mattilsyn-godkjent allergenmerking og sanntidsendring av priser
+                Tydelig allergenmerking og sanntidsendring av priser
               </h3>
               <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
                 Full interaktiv allergenfiltrering for gluten, laktose og nøtter. Oppdater utsolgte råvarer, sesongretter og priser i sanntid uten å trykke opp nye papirmenyer.
