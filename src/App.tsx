@@ -18,7 +18,8 @@ import { RestaurantEcosystemSection } from './components/RestaurantEcosystemSect
 import { ProductTechVideoSection } from './components/ProductTechVideoSection';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
-import { CheckoutModal } from './components/CheckoutModal';
+import { CheckoutPage } from './components/CheckoutPage';
+import { OrderTrackingPage } from './components/OrderTrackingPage';
 import { TermsModal } from './components/TermsModal';
 import { AdminOrdersModal } from './components/AdminOrdersModal';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
@@ -50,8 +51,9 @@ export default function App() {
     }
   });
 
+  const [view, setView] = useState<'store' | 'checkout' | 'order'>('store');
+  const [currentOrderId, setCurrentOrderId] = useState<string>('');
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [activeLegalModal, setActiveLegalModal] = useState<'terms' | 'privacy' | null>(null);
 
@@ -64,9 +66,33 @@ export default function App() {
     }
   }, [cartItems]);
 
-  // Global ESC key and body scroll lock for any open modal
+  // URL Hash Routing (#/, #/kasse, #/ordre/:id)
   useEffect(() => {
-    const isAnyModalOpen = isCartOpen || isCheckoutOpen || isAdminOpen || activeLegalModal !== null;
+    const handleHashChange = () => {
+      const hash = window.location.hash || '';
+      if (hash === '#/kasse' || hash === '#kasse' || hash === '#checkout') {
+        setView('checkout');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (hash.startsWith('#/ordre/') || hash.startsWith('#ordre/')) {
+        const id = hash.replace(/^#\/?ordre\//, '').trim();
+        if (id) {
+          setCurrentOrderId(id);
+          setView('order');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } else {
+        setView('store');
+      }
+    };
+
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Global ESC key and body scroll lock for open modals
+  useEffect(() => {
+    const isAnyModalOpen = isCartOpen || isAdminOpen || activeLegalModal !== null;
 
     if (isAnyModalOpen) {
       const originalOverflow = document.body.style.overflow;
@@ -74,8 +100,7 @@ export default function App() {
 
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
-          if (isCheckoutOpen) setIsCheckoutOpen(false);
-          else if (isAdminOpen) setIsAdminOpen(false);
+          if (isAdminOpen) setIsAdminOpen(false);
           else if (activeLegalModal !== null) setActiveLegalModal(null);
           else if (isCartOpen) setIsCartOpen(false);
         }
@@ -87,7 +112,7 @@ export default function App() {
         window.removeEventListener('keydown', handleKeyDown);
       };
     }
-  }, [isCartOpen, isCheckoutOpen, isAdminOpen, activeLegalModal]);
+  }, [isCartOpen, isAdminOpen, activeLegalModal]);
 
   const handleAddToCart = (product: Product, quantity = 1, targetUrl?: string) => {
     if (product.comingSoon) return;
@@ -142,8 +167,16 @@ export default function App() {
   };
 
   const handleNavigate = (sectionId: string) => {
+    if (view !== 'store') {
+      window.location.hash = '#/';
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+      return;
+    }
+
     setIsCartOpen(false);
-    setIsCheckoutOpen(false);
     setIsAdminOpen(false);
     setActiveLegalModal(null);
 
@@ -164,6 +197,52 @@ export default function App() {
   const shippingFee = cartItems.length === 0 ? 0 : discountedSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
   const grandTotal = discountedSubtotal + shippingFee;
 
+  // Render Checkout Page View
+  if (view === 'checkout') {
+    return (
+      <>
+        <CheckoutPage
+          items={cartItems}
+          subtotal={subtotal}
+          discountAmount={discountAmount}
+          shippingFee={shippingFee}
+          total={grandTotal}
+          onBackToStore={() => {
+            window.location.hash = '#/';
+          }}
+          onOrderCompleted={(orderId) => {
+            handleClearCart();
+            setCurrentOrderId(orderId);
+            window.location.hash = `#/ordre/${orderId}`;
+          }}
+        />
+        <TermsModal
+          type={activeLegalModal}
+          onClose={() => setActiveLegalModal(null)}
+        />
+      </>
+    );
+  }
+
+  // Render Order Tracking Page View
+  if (view === 'order') {
+    return (
+      <>
+        <OrderTrackingPage
+          orderId={currentOrderId}
+          onBackToStore={() => {
+            window.location.hash = '#/';
+          }}
+        />
+        <TermsModal
+          type={activeLegalModal}
+          onClose={() => setActiveLegalModal(null)}
+        />
+      </>
+    );
+  }
+
+  // Render Default Store View
   return (
     <div className="min-h-screen flex flex-col bg-[#FBFBFA] text-slate-900">
       {/* 1. Økosystem-toppstripe (øverst over headeren) */}
@@ -186,7 +265,7 @@ export default function App() {
       {/* Top Banner: Ungdomsbedrift & Pakketilbud notification */}
       <div className="bg-slate-900 text-white text-[11px] py-1.5 px-4 text-center font-medium tracking-wide flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 border-b border-slate-800">
         <span className="bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded text-[10px]">UB</span>
-        <span>Stolt Norsk Ungdomsbedrift</span>
+        <span>Aabakstudio Ungdomsbedrift (Org.nr: 938 823 014)</span>
         <span className="text-slate-500 hidden sm:inline">·</span>
         <span className="hidden sm:inline">Fri frakt over {FREE_SHIPPING_THRESHOLD} kr</span>
         <span className="text-slate-500">·</span>
@@ -240,7 +319,7 @@ export default function App() {
       />
 
       {/* Mobile Sticky Floating Cart Bar */}
-      {totalItemsCount > 0 && !isCartOpen && !isCheckoutOpen && (
+      {totalItemsCount > 0 && !isCartOpen && (
         <div className="fixed bottom-4 inset-x-3 z-30 sm:hidden animate-in slide-in-from-bottom-5 duration-200">
           <button
             onClick={() => setIsCartOpen(true)}
@@ -280,20 +359,8 @@ export default function App() {
         onRemoveItem={handleRemoveItem}
         onProceedToCheckout={() => {
           setIsCartOpen(false);
-          setIsCheckoutOpen(true);
+          window.location.hash = '#/kasse';
         }}
-      />
-
-      {/* Checkout Modal */}
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        items={cartItems}
-        subtotal={subtotal}
-        discountAmount={discountAmount}
-        shippingFee={shippingFee}
-        total={grandTotal}
-        onClearCart={handleClearCart}
       />
 
       {/* Legal & Terms Modal */}

@@ -10,8 +10,13 @@ import {
   getCustomerShippingEmailSubject,
   getCustomerShippingEmailBody,
   saveOrder,
-  exportOrdersToCsv
+  exportOrdersToCsv,
+  COMPANY_NAME,
+  COMPANY_ORG_NR,
+  COMPANY_ADDRESS,
+  STORE_NOTIFICATION_EMAIL
 } from '../utils/orders';
+import { fetchAllOrdersFromFirestore } from '../utils/firestoreOrders';
 import {
   X,
   Package,
@@ -40,7 +45,8 @@ import {
   Building2,
   Phone,
   QrCode,
-  RotateCcw
+  RotateCcw,
+  CreditCard
 } from 'lucide-react';
 import {
   verifyAdminPin,
@@ -66,7 +72,11 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [statusFilter, setStatusFilter] = useState<'all' | OrderStatus>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'orders' | 'guide'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'guide' | 'settings'>('orders');
+  const [stripeLinkInput, setStripeLinkInput] = useState<string>(() => {
+    return localStorage.getItem('nfc_stripe_link') || '';
+  });
+  const [stripeSavedNotice, setStripeSavedNotice] = useState(false);
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedEmailId, setCopiedEmailId] = useState<string | null>(null);
@@ -125,7 +135,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
     }
   }, [lockoutSeconds]);
 
-  const loadOrders = () => {
+  const loadOrders = async () => {
     const list = getStoredOrders();
     setOrders(list);
     const trackingMap: Record<string, string> = {};
@@ -133,6 +143,28 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
       trackingMap[o.orderId] = o.trackingNumber || '';
     });
     setTrackingInputs(trackingMap);
+
+    // Hent ferske ordrer fra Firestore i skyen og slå sammen
+    try {
+      const remoteOrders = await fetchAllOrdersFromFirestore();
+      if (remoteOrders && remoteOrders.length > 0) {
+        const orderMap = new Map<string, OrderRecord>();
+        list.forEach((o) => orderMap.set(o.orderId, o));
+        remoteOrders.forEach((o) => orderMap.set(o.orderId, o));
+        const combined = Array.from(orderMap.values()).sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setOrders(combined);
+        combined.forEach((o) => {
+          if (o.trackingNumber && !trackingMap[o.orderId]) {
+            trackingMap[o.orderId] = o.trackingNumber;
+          }
+        });
+        setTrackingInputs({ ...trackingMap });
+      }
+    } catch (err) {
+      console.warn('Kunne ikke laste fra Firestore:', err);
+    }
   };
 
   if (!isOpen) return null;
@@ -478,6 +510,15 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                   <HelpCircle className="w-3.5 h-3.5" />
                   <span>Driftsveileder (Guide)</span>
                 </button>
+                <button
+                  onClick={() => setActiveTab('settings')}
+                  className={`px-3 py-1.5 rounded-lg transition-colors flex items-center space-x-1.5 ${
+                    activeTab === 'settings' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  <span>Stripe Betaling</span>
+                </button>
               </div>
 
               {/* Action Buttons: Export to Excel/CSV & Add sample */}
@@ -571,6 +612,68 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                   <p className="text-xs text-emerald-900">
                     Bruk knappen <strong>«Eksporter til Excel / CSV»</strong> øverst til høyre når som helst. Filen inneholder alle salg, mva/delsummer, betalingsformer (Kort vs EHF) og sjekklistestatus – perfekt for regnskapsrapporten til fylkesmesterskapet og Fiken!
                   </p>
+                </div>
+              </div>
+            ) : activeTab === 'settings' ? (
+              /* Stripe & Innstillinger Workspace */
+              <div className="p-6 overflow-y-auto space-y-6 text-slate-800 text-sm leading-relaxed max-w-2xl">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <CreditCard className="w-5 h-5 text-blue-600" />
+                    <span>Stripe Payment Link Innstillinger</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Koble til din offisielle Stripe-betalingslenke for {COMPANY_NAME} (Org.nr: {COMPANY_ORG_NR}).
+                  </p>
+                </div>
+
+                <div className="p-5 bg-white rounded-2xl border border-slate-200 space-y-4 shadow-xs">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Stripe Payment Link URL
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://buy.stripe.com/..."
+                      value={stripeLinkInput}
+                      onChange={(e) => {
+                        setStripeLinkInput(e.target.value);
+                        setStripeSavedNotice(false);
+                      }}
+                      className="w-full px-3.5 py-2.5 text-xs font-mono rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white"
+                    />
+                    <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                      Når denne er lagt inn, videresendes kunden automatisk til Stripe for trygg betaling med Apple Pay, Google Pay eller Visa/Mastercard. Kunden får sin unike sporingslenke med ordrenummer.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center space-x-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        localStorage.setItem('nfc_stripe_link', stripeLinkInput.trim());
+                        setStripeSavedNotice(true);
+                        setTimeout(() => setStripeSavedNotice(false), 3000);
+                      }}
+                      className="py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors flex items-center space-x-1.5 shadow-xs"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>Lagre innstilling</span>
+                    </button>
+                    {stripeSavedNotice && (
+                      <span className="text-xs text-emerald-600 font-bold">
+                        ✓ Stripe-lenke lagret!
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1.5">
+                  <p className="font-bold text-slate-800">Bedriftsdata registrert i systemet:</p>
+                  <p>Foretak: <strong>{COMPANY_NAME}</strong></p>
+                  <p>Organisasjonsnummer: <strong className="font-mono">{COMPANY_ORG_NR}</strong></p>
+                  <p>Forretningsadresse: <strong>{COMPANY_ADDRESS}</strong></p>
+                  <p>E-post: <strong>{STORE_NOTIFICATION_EMAIL}</strong></p>
                 </div>
               </div>
             ) : (
@@ -1170,13 +1273,13 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                 <div className="flex items-start justify-between border-b-2 border-slate-900 pb-4">
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-xl font-black tracking-tight text-blue-600">NFC REVIEW UB</span>
+                      <span className="text-xl font-black tracking-tight text-blue-600">{COMPANY_NAME.toUpperCase()}</span>
                       <span className="text-[10px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-300">
-                        UNGDOMSBEDRIFT
+                        UB
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 mt-0.5">Tilknyttet Ungt Entreprenørskap</p>
-                    <p className="text-xs text-slate-600">Kontakt: aabakstudio@gmail.com</p>
+                    <p className="text-xs text-slate-700 font-semibold mt-0.5">Org.nr: {COMPANY_ORG_NR} · {COMPANY_ADDRESS}</p>
+                    <p className="text-xs text-slate-600">Kontakt: {STORE_NOTIFICATION_EMAIL}</p>
                   </div>
 
                   <div className="text-right">

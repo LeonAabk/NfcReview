@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { X, Shield } from 'lucide-react';
+import { COMPANY_NAME, COMPANY_ORG_NR, COMPANY_ADDRESS, STORE_NOTIFICATION_EMAIL } from '../utils/orders';
 
 interface TermsModalProps {
   type: 'terms' | 'privacy' | null;
@@ -56,16 +57,16 @@ export const TermsModal: React.FC<TermsModalProps> = ({ type, onClose }) => {
           {type === 'terms' ? (
             <>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 mb-1">1. Generelt</h3>
+                <h3 className="text-sm font-bold text-slate-900 mb-1">1. Generelt & Selgerinformasjon</h3>
                 <p>
-                  Disse salgsbetingelsene gjelder for alt salg av produkter fra vår registrerte ungdomsbedrift (NFC Review UB) til bedrifter og forbrukere i Norge. Ved bestilling aksepterer kjøperen disse vilkårene.
+                  Disse salgsbetingelsene gjelder for alt salg av produkter fra vår registrerte ungdomsbedrift, <strong>{COMPANY_NAME}</strong> (Organisasjonsnummer: <strong>{COMPANY_ORG_NR}</strong>, Forretningsadresse: {COMPANY_ADDRESS}, E-post: {STORE_NOTIFICATION_EMAIL}), til bedrifter og forbrukere i Norge. Ved bestilling aksepterer kjøperen disse vilkårene.
                 </p>
               </div>
 
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">2. Priser og betaling</h3>
                 <p>
-                  Alle priser i nettbutikken er oppgitt i norske kroner (NOK) inkludert mva. (vi dekker merverdiavgift i oppgitt pris). Betaling skjer trygt og kryptert via Stripe / Kort / Vipps. Det tilkommer ingen skjulte eller månedlige gebyrer på våre Google Review NFC-kort.
+                  Alle priser i nettbutikken er oppgitt i norske kroner (NOK) inkludert merverdiavgift. Betaling skjer trygt og kryptert via Stripe (Kort / Apple Pay / Google Pay). Det tilkommer ingen løpende eller skjulte månedlige gebyrer på våre Google Review NFC-kort.
                 </p>
               </div>
 
@@ -88,21 +89,21 @@ export const TermsModal: React.FC<TermsModalProps> = ({ type, onClose }) => {
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">1. Behandlingsansvarlig</h3>
                 <p>
-                  NFC Review UB er behandlingsansvarlig for personopplysninger som samles inn i forbindelse med bestillinger i vår nettbutikk.
+                  <strong>{COMPANY_NAME}</strong> (Org.nr: <strong>{COMPANY_ORG_NR}</strong>) er behandlingsansvarlig for personopplysninger som samles inn i forbindelse med bestillinger i vår nettbutikk.
                 </p>
               </div>
 
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">2. Hvilke opplysninger vi behandler</h3>
                 <p>
-                  Vi samler kun inn nødvendige opplysninger for å programmere og levere bestillingen din: Navn på kontaktperson, bedriftsnavn, leveringsadresse, e-postadresse, telefonnummer og bedriftens offentlige Google-anmeldelseslenke.
+                  Vi samler kun inn nødvendige opplysninger for å programmere og levere bestillingen din: Navn på kontaktperson, bedriftsnavn, leveringsadresse, e-postadresse, telefonnummer og bedriftens offentlige Google-anmeldelseslenke eller stedsnavn.
                 </p>
               </div>
 
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">3. Ingen sporing av sluttkunder</h3>
                 <p>
-                  Våre Google Review NFC-kort åpner kun din Google-anmeldelsesside i kundens nettleser/Google Maps. Kortene lagrer eller sporer ingen persondata fra kundene dine som tapper mobilen.
+                  Våre Google Review NFC-kort åpner kun din Google-anmeldelsesside i kundens nettleser/Google Maps. Kortene lagrer eller sporer ingen persondata fra kundene dine som tæpper mobilen mot kortet.
                 </p>
               </div>
 
