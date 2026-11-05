@@ -27,7 +27,6 @@ interface CheckoutPageProps {
   total: number;
   onBackToStore: () => void;
   onOrderCompleted: (orderId: string) => void;
-  stripePaymentLink?: string;
 }
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({
@@ -37,8 +36,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   shippingFee,
   total,
   onBackToStore,
-  onOrderCompleted,
-  stripePaymentLink = ''
+  onOrderCompleted
 }) => {
   const [showGoogleGuide, setShowGoogleGuide] = useState(false);
   const [reviewInputMode, setReviewInputMode] = useState<'url' | 'lookup'>('lookup');
@@ -57,7 +55,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     googleReviewUrl: '',
     menuUrl: '',
     notes: '',
-    paymentMethod: 'vipps_card'
+    paymentMethod: 'vipps'
   });
 
   const [formError, setFormError] = useState<string | null>(null);
@@ -129,7 +127,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         : sanitizeText(formData.googleReviewUrl || ''),
       menuUrl: sanitizeText(formData.menuUrl || ''),
       notes: sanitizeText(formData.notes || ''),
-      paymentMethod: 'vipps_card'
+      paymentMethod: 'vipps'
     };
 
     const newOrder: OrderRecord = {
@@ -153,27 +151,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     // Lagre lokalt og i Firestore i skyen
     saveOrder(newOrder);
 
-    // Hent Stripe Payment Link fra props eller lagret innstilling
-    const activeStripeLink = stripePaymentLink.trim() || localStorage.getItem('nfc_stripe_link')?.trim() || '';
-
-    if (activeStripeLink.startsWith('https://buy.stripe.com/')) {
-      try {
-        const stripeUrl = new URL(activeStripeLink);
-        stripeUrl.searchParams.set('client_reference_id', generatedId);
-        if (cleanEmail) {
-          stripeUrl.searchParams.set('prefilled_email', cleanEmail);
-        }
-        window.location.href = stripeUrl.toString();
-        return;
-      } catch (err) {
-        console.warn('Ugyldig Stripe URL, ruter til ordrebekreftelse:', err);
-      }
-    }
-
-    // Hvis Stripe ikke er koblet eller under testing, rute direkte til ordrebekreftelse
+    // Rute direkte til ordrebekreftelse og Vipps-instruksjoner
     setTimeout(() => {
       onOrderCompleted(generatedId);
-    }, 400);
+    }, 250);
   };
 
   return (
@@ -504,25 +485,30 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
             <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/90 shadow-sm space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center space-x-2.5">
-                  <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">
+                  <span className="w-6 h-6 rounded-full bg-[#ff5b24]/15 text-[#ff5b24] flex items-center justify-center text-xs font-bold">
                     {hasReviewProducts ? '4' : '3'}
                   </span>
                   <h2 className="text-base font-bold text-slate-900">Betalingsmetode</h2>
                 </div>
                 <span className="text-xs text-slate-500 flex items-center space-x-1">
                   <Lock className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Kryptert</span>
+                  <span>Vipps Bedrift</span>
                 </span>
               </div>
 
-              <div className="p-4 rounded-xl border-2 border-blue-600 bg-blue-50/40 flex items-start space-x-3">
-                <CreditCard className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+              <div className="p-4 rounded-xl border-2 border-[#ff5b24] bg-orange-50/40 flex items-start space-x-3.5">
+                <div className="w-8 h-8 rounded-lg bg-[#ff5b24] text-white flex items-center justify-center font-black text-sm shrink-0 mt-0.5 shadow-xs">
+                  V
+                </div>
                 <div className="space-y-1">
-                  <p className="text-sm font-bold text-slate-900">
-                    Sikker kortbetaling via Stripe
+                  <p className="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                    <span>Vipps Bedrift</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#ff5b24]/10 text-[#ff5b24]">
+                      Enkelt & Raskt
+                    </span>
                   </p>
-                  <p className="text-xs text-slate-600">
-                    Støtter Visa, Mastercard, Apple Pay og Google Pay. Ingen sensitive kortopplysninger lagres hos oss.
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Når du trykker på fullfør under, opprettes ordren umiddelbart og du får opp Vippsnummer og instruksjoner for betaling med din unike ordrereferanse.
                   </p>
                 </div>
               </div>
@@ -530,11 +516,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-4 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-extrabold text-base shadow-lg shadow-blue-600/25 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+                className="w-full py-4 px-6 rounded-xl bg-[#ff5b24] hover:bg-[#e04f1e] active:bg-[#c94317] text-white font-extrabold text-base shadow-lg shadow-[#ff5b24]/25 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
               >
                 <Lock className="w-4 h-4" />
                 <span>
-                  {isSubmitting ? 'Behandler bestilling...' : `Fullfør bestilling · ${total} kr`}
+                  {isSubmitting ? 'Oppretter bestilling...' : `Fullfør og betal med Vipps · ${total} kr`}
                 </span>
               </button>
 

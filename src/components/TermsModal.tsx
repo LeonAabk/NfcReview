@@ -66,7 +66,7 @@ export const TermsModal: React.FC<TermsModalProps> = ({ type, onClose }) => {
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">2. Priser og betaling</h3>
                 <p>
-                  Alle priser i nettbutikken er oppgitt i norske kroner (NOK) inkludert merverdiavgift. Betaling skjer trygt og kryptert via Stripe (Kort / Apple Pay / Google Pay). Det tilkommer ingen løpende eller skjulte månedlige gebyrer på våre Google Review NFC-kort.
+                  Alle priser i nettbutikken er oppgitt i norske kroner (NOK) inkludert merverdiavgift. Betaling skjer trygt og enkelt via Vipps Bedrift til bedriftens offisielle konto. Det tilkommer ingen løpende eller skjulte månedlige gebyrer på våre Google Review NFC-kort.
                 </p>
               </div>
 
@@ -110,7 +110,7 @@ export const TermsModal: React.FC<TermsModalProps> = ({ type, onClose }) => {
               <div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1">4. Sikkerhet og tredjeparter</h3>
                 <p>
-                  Betalingsinformasjon behandles eksklusivt av PCI-DSS-sertifiserte betalingsleverandører (Stripe). Vi lagrer aldri kortnumre.
+                  Betalinger formidles trygt via Vipps MobilePay til vår bedriftskonto i SpareBank 1 Østlandet. Vi lagrer aldri sensitive betalingsopplysninger.
                 </p>
               </div>
             </>

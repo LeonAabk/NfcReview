@@ -73,10 +73,10 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
   const [statusFilter, setStatusFilter] = useState<'all' | OrderStatus>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'orders' | 'guide' | 'settings'>('orders');
-  const [stripeLinkInput, setStripeLinkInput] = useState<string>(() => {
-    return localStorage.getItem('nfc_stripe_link') || '';
+  const [vippsNumberInput, setVippsNumberInput] = useState<string>(() => {
+    return localStorage.getItem('nfc_vipps_number') || '938823014';
   });
-  const [stripeSavedNotice, setStripeSavedNotice] = useState(false);
+  const [vippsSavedNotice, setVippsSavedNotice] = useState(false);
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedEmailId, setCopiedEmailId] = useState<string | null>(null);
@@ -513,11 +513,13 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                 <button
                   onClick={() => setActiveTab('settings')}
                   className={`px-3 py-1.5 rounded-lg transition-colors flex items-center space-x-1.5 ${
-                    activeTab === 'settings' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    activeTab === 'settings' ? 'bg-[#ff5b24] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  <CreditCard className="w-3.5 h-3.5" />
-                  <span>Stripe Betaling</span>
+                  <span className="w-3.5 h-3.5 rounded bg-white text-[#ff5b24] flex items-center justify-center text-[9px] font-black">
+                    V
+                  </span>
+                  <span>Vipps Bedrift</span>
                 </button>
               </div>
 
@@ -615,35 +617,37 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                 </div>
               </div>
             ) : activeTab === 'settings' ? (
-              /* Stripe & Innstillinger Workspace */
+              /* Vipps & Innstillinger Workspace */
               <div className="p-6 overflow-y-auto space-y-6 text-slate-800 text-sm leading-relaxed max-w-2xl">
                 <div>
                   <h3 className="text-lg font-bold text-slate-900 flex items-center space-x-2">
-                    <CreditCard className="w-5 h-5 text-blue-600" />
-                    <span>Stripe Payment Link Innstillinger</span>
+                    <span className="w-5 h-5 rounded-md bg-[#ff5b24] text-white flex items-center justify-center text-xs font-black">
+                      V
+                    </span>
+                    <span>Vipps Bedrift Innstillinger</span>
                   </h3>
                   <p className="text-xs text-slate-500 mt-1">
-                    Koble til din offisielle Stripe-betalingslenke for {COMPANY_NAME} (Org.nr: {COMPANY_ORG_NR}).
+                    Administrer Vippsnummer for {COMPANY_NAME} (Org.nr: {COMPANY_ORG_NR}).
                   </p>
                 </div>
 
                 <div className="p-5 bg-white rounded-2xl border border-slate-200 space-y-4 shadow-xs">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Stripe Payment Link URL
+                      Vippsnummer / Bedriftsnummer (UB)
                     </label>
                     <input
-                      type="url"
-                      placeholder="https://buy.stripe.com/..."
-                      value={stripeLinkInput}
+                      type="text"
+                      placeholder="F.eks. 938823014 eller tildelt 5-6 sifre"
+                      value={vippsNumberInput}
                       onChange={(e) => {
-                        setStripeLinkInput(e.target.value);
-                        setStripeSavedNotice(false);
+                        setVippsNumberInput(e.target.value);
+                        setVippsSavedNotice(false);
                       }}
-                      className="w-full px-3.5 py-2.5 text-xs font-mono rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white"
+                      className="w-full px-3.5 py-2.5 text-xs font-mono rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#ff5b24] bg-white font-bold"
                     />
                     <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
-                      Når denne er lagt inn, videresendes kunden automatisk til Stripe for trygg betaling med Apple Pay, Google Pay eller Visa/Mastercard. Kunden får sin unike sporingslenke med ordrenummer.
+                      Dette Vippsnummeret vises umiddelbart til kunden på sporingssiden og i kassen, sammen med det unike ordrenummeret som melding.
                     </p>
                   </div>
 
@@ -651,21 +655,32 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                     <button
                       type="button"
                       onClick={() => {
-                        localStorage.setItem('nfc_stripe_link', stripeLinkInput.trim());
-                        setStripeSavedNotice(true);
-                        setTimeout(() => setStripeSavedNotice(false), 3000);
+                        localStorage.setItem('nfc_vipps_number', vippsNumberInput.trim());
+                        setVippsSavedNotice(true);
+                        setTimeout(() => setVippsSavedNotice(false), 3000);
                       }}
-                      className="py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors flex items-center space-x-1.5 shadow-xs"
+                      className="py-2.5 px-4 rounded-xl bg-[#ff5b24] hover:bg-[#e04f1e] text-white font-bold text-xs transition-colors flex items-center space-x-1.5 shadow-xs cursor-pointer"
                     >
                       <Check className="w-4 h-4" />
-                      <span>Lagre innstilling</span>
+                      <span>Lagre Vippsnummer</span>
                     </button>
-                    {stripeSavedNotice && (
+                    {vippsSavedNotice && (
                       <span className="text-xs text-emerald-600 font-bold">
-                        ✓ Stripe-lenke lagret!
+                        ✓ Vippsnummer lagret!
                       </span>
                     )}
                   </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-orange-50/70 border border-orange-200 text-xs text-slate-700 space-y-2">
+                  <p className="font-bold text-slate-900 flex items-center space-x-1.5">
+                    <span>💡 Veileder for oppsett med SpareBank 1 & Vipps:</span>
+                  </p>
+                  <ol className="list-decimal pl-4 space-y-1 text-slate-600">
+                    <li>Opprett bedriftskonto for UB hos <strong>SpareBank 1 Østlandet</strong> med org.nr <strong>{COMPANY_ORG_NR}</strong>.</li>
+                    <li>Gå til <strong>vipps.no</strong> / bedriftsportalen og opprett <em>«Kjøp og betal / Vippsnummer»</em>.</li>
+                    <li>Tast inn det tildelte nummeret i feltet over og trykk «Lagre». Ferdig!</li>
+                  </ol>
                 </div>
 
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1.5">
@@ -878,6 +893,39 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
+                          </div>
+
+                          {/* Vipps Payment Status Strip */}
+                          <div className="flex items-center justify-between p-2.5 rounded-xl bg-orange-50/80 border border-orange-200 text-xs">
+                            <div className="flex items-center space-x-2">
+                              <span className="w-5 h-5 rounded-md bg-[#ff5b24] text-white flex items-center justify-center font-black text-[10px]">
+                                V
+                              </span>
+                              <span className="font-bold text-slate-800">
+                                Vipps innbetaling ({order.total} kr)
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleToggleChecklist(order.orderId, 'paid')}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer ${
+                                checklist.paid
+                                  ? 'bg-emerald-600 text-white shadow-xs'
+                                  : 'bg-white hover:bg-orange-100 text-[#ff5b24] border border-[#ff5b24]'
+                              }`}
+                            >
+                              {checklist.paid ? (
+                                <>
+                                  <CheckSquare className="w-3.5 h-3.5" />
+                                  <span>Innbetalt på Vipps ✓</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Square className="w-3.5 h-3.5" />
+                                  <span>Marker som innbetalt</span>
+                                </>
+                              )}
+                            </button>
                           </div>
 
                           {/* Quality Control Checklist Box */}

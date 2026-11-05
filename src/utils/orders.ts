@@ -162,7 +162,7 @@ export function exportOrdersToCsv(orders: OrderRecord[]): void {
   };
 
   const rows = orders.map((o) => {
-    const paymentLabel = 'Kort (Stripe)';
+    const paymentLabel = 'Vipps Bedrift';
     const totalItems = o.items.reduce((sum, item) => sum + item.quantity, 0);
     const itemsDescription = o.items
       .map((i) => `${i.quantity}x ${i.product.name}`)

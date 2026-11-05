@@ -40,6 +40,10 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({
   const [order, setOrder] = useState<OrderRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedVippsNr, setCopiedVippsNr] = useState(false);
+  const [copiedOrderRef, setCopiedOrderRef] = useState(false);
+
+  const vippsNumber = localStorage.getItem('nfc_vipps_number') || '938823014';
 
   // Load order data (from localStorage first, then Firestore)
   useEffect(() => {
@@ -222,6 +226,10 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({
               <span>Frakt (Posten):</span>
               <span className="font-mono">{order.shippingFee === 0 ? '0 kr (Fri frakt)' : `${order.shippingFee} kr`}</span>
             </div>
+            <div className="flex justify-between text-slate-700">
+              <span>Betalingsmåte:</span>
+              <span className="font-semibold">Vipps Bedrift</span>
+            </div>
             <div className="flex justify-between font-black text-sm border-t border-slate-900 pt-1.5">
               <span>Totalsum (inkl. mva):</span>
               <span className="font-mono">{order.total} kr</span>
@@ -313,6 +321,117 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Vipps Betalingskort */}
+          {order.checklist?.paid || order.status !== 'ny' ? (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 flex items-center justify-between text-xs text-emerald-900 shadow-xs">
+              <div className="flex items-center space-x-3.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+                  ✓
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900 text-sm">Innbetaling registrert via Vipps</p>
+                  <p className="text-emerald-700 text-xs mt-0.5">
+                    Takk! Betalingen er mottatt og ordren er godkjent for programmering hos Aabakstudio UB.
+                  </p>
+                </div>
+              </div>
+              <span className="font-mono font-bold text-slate-800 bg-white px-3 py-1.5 rounded-lg border border-emerald-200 shrink-0 hidden sm:inline-block">
+                {order.total} kr betalt
+              </span>
+            </div>
+          ) : (
+            <div className="bg-gradient-to-br from-orange-50 via-white to-orange-50/50 rounded-3xl p-6 sm:p-7 border-2 border-[#ff5b24] shadow-md space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-orange-200/80 pb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[#ff5b24] text-white flex items-center justify-center font-black text-lg shadow-sm">
+                    V
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-black text-slate-900">
+                      Betal med Vipps for å starte produksjonen
+                    </h2>
+                    <p className="text-xs text-slate-600">
+                      Bruk Vipps-appen på mobilen din for å fullføre betalingen
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-[11px] text-slate-500 block">Beløp å betale:</span>
+                  <span className="text-xl sm:text-2xl font-black text-[#ff5b24] font-mono">
+                    {order.total} kr
+                  </span>
+                </div>
+              </div>
+
+              {/* Vipps betalingsinfo */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="p-3.5 bg-white rounded-xl border border-orange-200 shadow-xs flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                      1. VIPPSNUMMER (AABAKSTUDIO UB)
+                    </span>
+                    <span className="font-mono font-black text-base text-slate-900">
+                      {vippsNumber}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText(vippsNumber);
+                        setCopiedVippsNr(true);
+                        setTimeout(() => setCopiedVippsNr(false), 2000);
+                      }
+                    }}
+                    className="px-2.5 py-1.5 rounded-lg bg-orange-100 hover:bg-orange-200 text-[#ff5b24] text-xs font-bold transition-colors flex items-center space-x-1 cursor-pointer"
+                  >
+                    {copiedVippsNr ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedVippsNr ? 'Kopiert' : 'Kopier'}</span>
+                  </button>
+                </div>
+
+                <div className="p-3.5 bg-white rounded-xl border border-orange-200 shadow-xs flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                      2. MELDING / ORDRENUMMER
+                    </span>
+                    <span className="font-mono font-black text-base text-blue-600">
+                      {order.orderId}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText(order.orderId);
+                        setCopiedOrderRef(true);
+                        setTimeout(() => setCopiedOrderRef(false), 2000);
+                      }
+                    }}
+                    className="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-bold transition-colors flex items-center space-x-1 cursor-pointer"
+                  >
+                    {copiedOrderRef ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedOrderRef ? 'Kopiert' : 'Kopier'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Handlingsknapp for mobil */}
+              <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                <a
+                  href="vipps://"
+                  className="w-full sm:w-auto flex-1 py-3 px-5 rounded-xl bg-[#ff5b24] hover:bg-[#e04f1e] active:bg-[#c94317] text-white font-extrabold text-sm shadow-md shadow-[#ff5b24]/20 transition-all flex items-center justify-center space-x-2 text-center"
+                >
+                  <span>Åpne Vipps på mobilen</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+                <p className="text-xs text-slate-500 text-center sm:text-left flex-1">
+                  Tips: Husk å lime inn ordrenummeret <strong>{order.orderId}</strong> i Vipps så kobles innbetalingen din automatisk!
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* 4-Step Live Tracking Progress */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">

@@ -133,19 +133,13 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy, onOp
           </div>
 
           {/* Payment Badges */}
-          <div className="flex items-center space-x-3 text-slate-400">
-            <span className="text-[11px] font-semibold text-slate-300">Sikker betaling via</span>
-            <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded font-semibold text-white text-[10px]">
-              STRIPE
+          <div className="flex items-center space-x-2 text-slate-400">
+            <span className="text-[11px] font-semibold text-slate-300">Offisiell betalingsløsning:</span>
+            <span className="px-2.5 py-0.5 bg-[#ff5b24] text-white font-extrabold rounded-md text-[11px] tracking-wide shadow-xs">
+              VIPPS
             </span>
-            <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded font-semibold text-white text-[10px]">
-              VISA
-            </span>
-            <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded font-semibold text-white text-[10px]">
-              MASTERCARD
-            </span>
-            <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded font-semibold text-white text-[10px]">
-              APPLE PAY
+            <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded font-semibold text-slate-300 text-[10px]">
+              Bedrift
             </span>
           </div>
         </div>

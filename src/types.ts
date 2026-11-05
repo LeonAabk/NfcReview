@@ -28,7 +28,7 @@ export interface CartItem {
   targetUrl?: string; // Review link or Menu link
 }
 
-export type PaymentMethod = 'vipps_card' | 'invoice_ehf';
+export type PaymentMethod = 'vipps' | 'vipps_card' | 'invoice_ehf';
 
 export interface CustomerOrderData {
   companyName: string;
@@ -53,6 +53,7 @@ export interface CustomerOrderData {
 export type OrderStatus = 'ny' | 'behandles' | 'sendt' | 'fullfort';
 
 export interface OrderChecklist {
+  paid?: boolean; // Innbetaling registrert via Vipps
   programmedChip: boolean; // 1. Brikke programmert
   qrTested: boolean; // 2. QR-kode / NFC testet med mobil
   packed: boolean; // 3. Pakket
