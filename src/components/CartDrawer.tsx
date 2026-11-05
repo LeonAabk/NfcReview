@@ -98,14 +98,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
                   {bulkDiscount.nextTier && (
                     <p className="text-[11px] text-emerald-700 font-medium">
-                      Tips: Legg til <strong>{bulkDiscount.nextTier.remaining} stk</strong> til for bedriftspris (298 kr/stk)!
+                      Tips: Legg til <strong>{bulkDiscount.nextTier.remaining} stk</strong> til for bedriftspris (258 kr/stk)!
                     </p>
                   )}
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
                   <span>
-                    Legg til <strong>{bulkDiscount.nextTier?.remaining} kort</strong> til for Synlighetspakken-pris (<strong>990 kr</strong> + fri frakt)!
+                    Legg til <strong>{bulkDiscount.nextTier?.remaining} kort</strong> til for Synlighetspakken-pris (<strong>890 kr</strong> + fri frakt)!
                   </span>
                   <span className="text-[10px] uppercase font-bold text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-200">
                     3 STK

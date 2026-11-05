@@ -95,7 +95,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
                 {product.disableBulkDiscount ? (
                   <span>✓ Ferdig pakkepris · Fri frakt med Posten inkludert</span>
                 ) : (
-                  <span>💡 Tips: 3 stk. (Synlighetspakken) kun 990 kr inkl. fri frakt</span>
+                  <span>💡 Tips: 3 stk. (Synlighetspakken) kun 890 kr inkl. fri frakt</span>
                 )}
               </div>
             </>

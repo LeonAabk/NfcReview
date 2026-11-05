@@ -6,7 +6,7 @@ export const PRODUCTS: Product[] = [
     name: 'Google Review NFC-kort (1 stk.)',
     shortDescription:
       'Flatt, slitesterkt Google Review NFC-kort med kraftig 3M™-klistremerke bakpå. Festes rett på disk, betalingsterminal, bord eller vegg.',
-    price: 399,
+    price: 349,
     badge: 'Klar på lager · 0 kr/mnd',
     type: 'stand',
     cardsInPack: 1,
@@ -27,9 +27,9 @@ export const PRODUCTS: Product[] = [
     name: 'Synlighetspakken – 3 stk. Google Review NFC-kort',
     shortDescription:
       'Vår mest populære pakke! 3 stk. flate Google Review NFC-kort med 3M™-klistremerke bakpå til kasse, disk, inngangsparti eller flere behandlingsrom.',
-    price: 990,
-    originalPrice: 1197,
-    badge: 'Mest populær · Spar 207 kr',
+    price: 890,
+    originalPrice: 1047,
+    badge: 'Mest populær · Spar 157 kr',
     isPopular: true,
     disableBulkDiscount: true,
     cardsInPack: 3,
@@ -39,7 +39,7 @@ export const PRODUCTS: Product[] = [
     dimensions: '3 stk. flate NFC-kort med 3M™-feste',
     compatibility: 'Fungerer med alle moderne iPhone- og Android-smarttelefoner',
     features: [
-      'Inkluderer 3 stk. flate Google Review NFC-kort med 3M™-bakside (kun 330 kr/stk – spar 207 kr!)',
+      'Inkluderer 3 stk. flate Google Review NFC-kort med 3M™-bakside (kun 297 kr/stk – spar 157 kr!)',
       'Plasser ved kassen, på disken og ved utgangen slik at ingen fornøyde kunder glemmer å gi 5 stjerner',
       'Vi forhåndsprogrammerer din bedrifts Google Review-lenke på alle kort før forsendelse',
       'Fri frakt med Posten inkludert i prisen (alle priser er inkl. mva.)',
@@ -51,9 +51,9 @@ export const PRODUCTS: Product[] = [
     name: 'Bedriftspakke – 5 stk. Google Review NFC-kort',
     shortDescription:
       '5 stk. flate Google Review NFC-kort med 3M™-feste for bedrifter med flere kasser, bordsoner, frisørstoler, behandlingsrom eller avdelinger.',
-    price: 1490,
-    originalPrice: 1995,
-    badge: 'Beste stykkpris · Spar 505 kr',
+    price: 1290,
+    originalPrice: 1745,
+    badge: 'Beste stykkpris · Spar 455 kr',
     disableBulkDiscount: true,
     cardsInPack: 5,
     type: 'stand',
@@ -62,7 +62,7 @@ export const PRODUCTS: Product[] = [
     dimensions: '5 stk. flate NFC-kort med 3M™-feste',
     compatibility: 'Fungerer med alle moderne iPhone- og Android-smarttelefoner',
     features: [
-      'Inkluderer 5 stk. flate Google Review NFC-kort med 3M™-bakside (kun 298 kr/stk – spar 505 kr!)',
+      'Inkluderer 5 stk. flate Google Review NFC-kort med 3M™-bakside (kun 258 kr/stk – spar 455 kr!)',
       'Kan kodes til samme Google-profil eller fordeles på ulike avdelinger etter ønske',
       'Festes enkelt på alle slette flater uten løse stativer som velter på disken',
       'Fri frakt med Posten inkludert i prisen (inkl. mva.)',
@@ -74,7 +74,7 @@ export const PRODUCTS: Product[] = [
     name: 'Meny-kort med NFC & QR (SmakSync)',
     shortDescription:
       'Kontaktløse bordkort koblet til vårt digitale menysystem SmakSync – oppdater priser, allergener og utsolgte retter i sanntid. Lanseres snart for bedrifter!',
-    price: 1490,
+    price: 1290,
     priceLabel: 'Kommer senere',
     badge: 'Kommer senere for bedrifter',
     comingSoon: true,
@@ -112,7 +112,7 @@ export const PRODUCTS: Product[] = [
     features: [
       'Kommende totalpakke for serveringssteder: meny ved bordet + 5 stjerner ved betaling',
       'Inkluderer fullt oppsett og innlegging av hele restaurantens meny',
-      'Trenger du Google Review-kortene allerede i dag? Velg Synlighetspakken (990 kr) over!',
+      'Trenger du Google Review-kortene allerede i dag? Velg Synlighetspakken (890 kr) over!',
       'Eksisterende Google Review-kunder får prioritert tilgang og pakkepris ved lansering',
       'Se interaktive menyeksempler og registrer interesse på SmakSync'
     ]
@@ -138,7 +138,7 @@ export const FAQS = [
   {
     question: 'Er merverdiavgift (mva.) inkludert i prisene?',
     answer:
-      'Ja! Alle oppgitte priser i nettbutikken (399 kr for 1 stk., 990 kr for Synlighetspakken med 3 stk., og 1 490 kr for 5-pakningen) er sluttpriser inkludert mva. Vi dekker mva., og det tilkommer aldri skjulte gebyrer eller abonnementer.'
+      'Ja! Alle oppgitte priser i nettbutikken (349 kr for 1 stk., 890 kr for Synlighetspakken med 3 stk., og 1 290 kr for 5-pakningen) er sluttpriser inkludert mva. Vi dekker mva., og det tilkommer aldri skjulte gebyrer eller abonnementer.'
   },
   {
     question: 'Trenger kunden en egen app for at kortet skal fungere?',
@@ -158,7 +158,7 @@ export const FAQS = [
   {
     question: 'Hvor raskt leverer dere, og hva koster frakten?',
     answer:
-      'Vi programmerer, tester og pakker bestillinger fortløpende innen 24–48 timer. Pakken sendes med Posten i Norge (normalt 2–4 virkedager). Frakt koster 59 kr på enkeltkort, og vi spanderer fri frakt på alle bestillinger over 500 kr – inkludert Synlighetspakken (990 kr) og 5-pakningen (1 490 kr)!'
+      'Vi programmerer, tester og pakker bestillinger fortløpende innen 24–48 timer. Pakken sendes med Posten i Norge (normalt 2–4 virkedager). Frakt koster 59 kr på enkeltkort, og vi spanderer fri frakt på alle bestillinger over 500 kr – inkludert Synlighetspakken (890 kr) og 5-pakningen (1 290 kr)!'
   },
   {
     question: 'Kan Google-lenken endres senere hvis bedriften bytter profil eller flytter?',

@@ -269,7 +269,7 @@ export default function App() {
         <span className="text-slate-500 hidden sm:inline">·</span>
         <span className="hidden sm:inline">Fri frakt over {FREE_SHIPPING_THRESHOLD} kr</span>
         <span className="text-slate-500">·</span>
-        <span>⭐ Synlighetspakken (3 kort): 990 kr inkl. mva. &amp; fri frakt</span>
+        <span>⭐ Synlighetspakken (3 kort): 890 kr inkl. mva. &amp; fri frakt</span>
       </div>
 
       {/* Main Navigation */}

@@ -104,7 +104,7 @@ export const ProductList: React.FC<ProductListProps> = ({ onAddToCart }) => {
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-700 font-medium mt-1">
-                <strong>1 stk: 399 kr</strong> · <strong>Synlighetspakken (3 stk): 990 kr</strong> · <strong>Bedriftspakke (5 stk): 1 490 kr</strong>. Meny-kort og digitale menyer kommer senere for bedrifter!
+                <strong>1 stk: 349 kr</strong> · <strong>Synlighetspakken (3 stk): 890 kr</strong> · <strong>Bedriftspakke (5 stk): 1 290 kr</strong>. Meny-kort og digitale menyer kommer senere for bedrifter!
               </p>
             </div>
           </div>

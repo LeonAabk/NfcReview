@@ -157,14 +157,14 @@ export const RestaurantEcosystemSection: React.FC = () => {
                     <h4 className="text-sm font-bold text-white">Google Review NFC-kort (med 3M™-feste)</h4>
                   </div>
                 </div>
-                <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 px-2 py-0.5 rounded">På lager · 399 kr</span>
+                <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 px-2 py-0.5 rounded">På lager · 349 kr</span>
               </div>
               <p className="text-xs text-zinc-300 leading-relaxed mb-3">
                 Fornøyd gjest betaler ved kassen eller disken og tapper på det flate Google NFC-kortet som sitter fastmontert med 3M™-bakside. 5 stjerner på under 5 sekunder!
               </p>
               <div className="flex items-center gap-2 text-[11px] text-zinc-400 bg-zinc-950/60 p-2.5 rounded-lg border border-zinc-850">
                 <Star className="w-3.5 h-3.5 text-amber-400 shrink-0 fill-amber-400" />
-                <span>Bestill i dag: <strong>399 kr/stk eller 3-pk for 990 kr (inkl. mva.)</strong></span>
+                <span>Bestill i dag: <strong>349 kr/stk eller 3-pk for 890 kr (inkl. mva.)</strong></span>
               </div>
             </div>
           </div>

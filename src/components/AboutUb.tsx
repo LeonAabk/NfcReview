@@ -96,7 +96,7 @@ export const AboutUb: React.FC<AboutUbProps> = ({ onOrderClick }) => {
               Klar til å støtte vår ungdomsbedrift og øke anmeldelsene dine?
             </h4>
             <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-              Vi koder inn din Google Review-lenke og sender direkte til din bedrift med Posten. Velg 1 kort (399 kr), Synlighetspakken med 3 kort (990 kr inkl. fri frakt) eller Bedriftspakken med 5 kort (1 490 kr inkl. fri frakt) – alle priser inkl. mva.!
+              Vi koder inn din Google Review-lenke og sender direkte til din bedrift med Posten. Velg 1 kort (349 kr), Synlighetspakken med 3 kort (890 kr inkl. fri frakt) eller Bedriftspakken med 5 kort (1 290 kr inkl. fri frakt) – alle priser inkl. mva.!
             </p>
           </div>
 
