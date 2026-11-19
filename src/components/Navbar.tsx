@@ -36,7 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </span>
           <div className="flex flex-col">
             <div className="flex items-center space-x-1.5">
-              <span className="font-extrabold text-lg sm:text-xl">NFC Review<span className="text-blue-600">.no</span></span>
+              <span className="font-extrabold text-lg sm:text-xl">Aabakstudio<span className="text-blue-600">.com</span></span>
               <span className="bg-amber-100 text-amber-900 text-[10px] font-black px-1.5 py-0.5 rounded border border-amber-300">UB</span>
             </div>
             <span className="text-[10px] font-medium text-slate-500 hidden sm:inline -mt-1">Ungdomsbedrift</span>
