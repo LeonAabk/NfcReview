@@ -19,7 +19,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerms, onOpenPrivacy, onOp
               <span className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-black">
                 ★
               </span>
-              <span>NFC Review<span className="text-blue-500">.no</span></span>
+              <span>Aabakstudio<span className="text-blue-500">.com</span></span>
               <span className="bg-amber-400/20 text-amber-300 text-[10px] font-extrabold px-1.5 py-0.5 rounded border border-amber-400/30">UB</span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
