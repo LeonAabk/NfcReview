@@ -164,7 +164,7 @@ export const RestaurantEcosystemSection: React.FC = () => {
               </p>
               <div className="flex items-center gap-2 text-[11px] text-zinc-400 bg-zinc-950/60 p-2.5 rounded-lg border border-zinc-850">
                 <Star className="w-3.5 h-3.5 text-amber-400 shrink-0 fill-amber-400" />
-                <span>Bestill i dag: <strong>349 kr/stk eller 3-pk for 890 kr (inkl. mva.)</strong></span>
+                <span>Bestill i dag: <strong>349 kr/stk eller 3-pk for 990 kr (inkl. mva.)</strong></span>
               </div>
             </div>
           </div>

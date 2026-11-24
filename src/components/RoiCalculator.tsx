@@ -80,7 +80,7 @@ export const RoiCalculator: React.FC<{ onExploreProducts: () => void }> = ({ onE
               <div className="p-3 bg-white rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1.5">
                 <div className="flex items-center space-x-2">
                   <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Google Review NFC-kort koster <strong>399 kr</strong> – eller <strong>330 kr/stk</strong> i Synlighetspakken (inkl. mva., kun engangskjøp).</span>
+                  <span>Google Review NFC-kort koster <strong>349 kr</strong> – eller <strong>330 kr/stk</strong> i Synlighetspakken (inkl. mva., kun engangskjøp).</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
