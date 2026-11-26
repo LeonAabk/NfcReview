@@ -1,5 +1,5 @@
 import { OrderRecord, OrderStatus, CustomerOrderData, CartItem, OrderChecklist } from '../types';
-import { saveOrderToFirestore } from './firestoreOrders';
+import { saveOrderToFirestore, deleteOrderFromFirestore } from './firestoreOrders';
 
 const ORDERS_STORAGE_KEY = 'nfc_review_orders_v1';
 export const STORE_NOTIFICATION_EMAIL = 'aabakstudio@gmail.com';
@@ -17,6 +17,24 @@ export function getStoredOrders(): OrderRecord[] {
   } catch (err) {
     console.error('Feil ved henting av ordre:', err);
     return [];
+  }
+}
+
+/** Lagrer ordrelisten fra skyen lokalt hos admin, slik at endringer virker på alle ordrer. */
+export function cacheOrders(orders: OrderRecord[]): void {
+  try {
+    localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
+  } catch (err) {
+    console.error('Feil ved lagring av ordrelisten:', err);
+  }
+}
+
+/** Fjerner kundedata fra denne nettleseren når admin logger ut. */
+export function clearOrderCache(): void {
+  try {
+    localStorage.removeItem(ORDERS_STORAGE_KEY);
+  } catch {
+    // Ignorer
   }
 }
 
@@ -114,6 +132,7 @@ export function deleteOrder(orderId: string): OrderRecord[] {
     const existing = getStoredOrders();
     const updated = existing.filter((o) => o.orderId !== orderId);
     localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updated));
+    deleteOrderFromFirestore(orderId).catch(console.error);
     return updated;
   } catch (err) {
     console.error('Feil ved sletting av ordre:', err);

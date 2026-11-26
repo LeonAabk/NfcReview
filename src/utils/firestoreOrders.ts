@@ -1,6 +1,13 @@
 import { OrderRecord, OrderStatus, OrderChecklist, CustomerOrderData, CartItem } from '../types';
+import { getAdminIdToken } from './firebase';
 
 const FIRESTORE_BASE = 'https://firestore.googleapis.com/v1/projects/smaksync/databases/(default)/documents/restaurants/aabakstudio/orders';
+
+/** Legger ved admin-innloggingen når den finnes. Kunder sender uten. */
+async function authHeaders(extra: Record<string, string> = {}): Promise<Record<string, string>> {
+  const token = await getAdminIdToken();
+  return token ? { ...extra, Authorization: `Bearer ${token}` } : extra;
+}
 
 interface FirestoreField {
   stringValue?: string;
@@ -119,7 +126,7 @@ export async function saveOrderToFirestore(order: OrderRecord): Promise<boolean>
     const fields = orderToFirestoreFields(order);
     const res = await fetch(url, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ fields })
     });
     return res.ok;
@@ -137,7 +144,7 @@ export async function fetchOrderFromFirestore(orderId: string): Promise<OrderRec
     const cleanId = orderId.trim();
     if (!cleanId) return null;
     const url = `${FIRESTORE_BASE}/${encodeURIComponent(cleanId)}`;
-    const res = await fetch(url);
+    const res = await fetch(url, { headers: await authHeaders() });
     if (!res.ok) {
       if (res.status === 404) return null;
       throw new Error(`Firestore status: ${res.status}`);
@@ -155,7 +162,9 @@ export async function fetchOrderFromFirestore(orderId: string): Promise<OrderRec
  */
 export async function fetchAllOrdersFromFirestore(): Promise<OrderRecord[]> {
   try {
-    const res = await fetch(FIRESTORE_BASE);
+    const headers = await authHeaders();
+    if (!headers.Authorization) return [];
+    const res = await fetch(`${FIRESTORE_BASE}?pageSize=300`, { headers });
     if (!res.ok) return [];
     const data = await res.json();
     const documents: FirestoreDocument[] = data.documents || [];
@@ -163,5 +172,20 @@ export async function fetchAllOrdersFromFirestore(): Promise<OrderRecord[]> {
   } catch (err) {
     console.error('Feil ved uthenting av alle ordrer fra Firestore:', err);
     return [];
+  }
+}
+
+/**
+ * Sletter en ordre i Firestore (kun innlogget admin)
+ */
+export async function deleteOrderFromFirestore(orderId: string): Promise<boolean> {
+  try {
+    const headers = await authHeaders();
+    if (!headers.Authorization) return false;
+    const res = await fetch(`${FIRESTORE_BASE}/${encodeURIComponent(orderId)}`, { method: 'DELETE', headers });
+    return res.ok;
+  } catch (err) {
+    console.error('Feil ved sletting i Firestore:', err);
+    return false;
   }
 }

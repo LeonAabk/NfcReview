@@ -1,184 +1,24 @@
 /**
- * Security utilities for NFC Review UB
- * Includes cryptographic hash validation, brute-force protection,
- * input sanitization, and session management.
+ * Sikkerhetsverktøy for NFC Review UB: ordrenumre som ikke kan gjettes og rensing av input.
+ * Admin-innlogging skjer med Google via Firebase (se utils/firebase.ts), ikke med PIN.
  */
 
-// SHA-256 hash of PIN '4563'
-const TARGET_PIN_HASH = '5524fe000ffd5c1743a619d7e17581511ed083d674b9998c6c7b42024315e88a';
-
-const MAX_FAILED_ATTEMPTS = 5;
-const LOCKOUT_DURATION_MS = 60 * 1000; // 60 seconds lockout
-const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes session timeout
-
-const ATTEMPTS_KEY = 'nfc_admin_failed_attempts';
-const LOCKOUT_KEY = 'nfc_admin_lockout_until';
-const SESSION_KEY = 'nfc_admin_session_auth';
+// Uten 0/O og 1/I, slik at numrene er lette å lese og skrive av.
+const ORDER_ID_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'; // 32 tegn = 5 bit per tegn
+const ORDER_ID_LENGTH = 12; // 60 bit tilfeldighet
 
 /**
- * Computes SHA-256 hex string using browser Web Crypto API
+ * Lager et tilfeldig ordrenummer, f.eks. NFC-7K3M-Q9XA-2HPD.
+ * Nummeret fungerer som nøkkel til sporingssiden, så det må ikke kunne gjettes.
  */
-export async function sha256(input: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(input);
-  if (typeof crypto !== 'undefined' && crypto.subtle) {
-    try {
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-    } catch {
-      // Fallback below
-    }
-  }
-  // Fallback simple checksum if WebCrypto is unavailable in test/webview
-  let hash = 0;
-  for (let i = 0; i < input.length; i++) {
-    hash = (hash << 5) - hash + input.charCodeAt(i);
-    hash |= 0;
-  }
-  return hash.toString(16);
+export function generateOrderId(): string {
+  const bytes = new Uint8Array(ORDER_ID_LENGTH);
+  crypto.getRandomValues(bytes);
+  const chars = Array.from(bytes, (b) => ORDER_ID_ALPHABET[b % ORDER_ID_ALPHABET.length]).join('');
+  return `NFC-${chars.slice(0, 4)}-${chars.slice(4, 8)}-${chars.slice(8, 12)}`;
 }
 
-/**
- * Timing-safe string comparison to prevent timing attacks
- */
-function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return result === 0;
-}
-
-/**
- * Checks remaining lockout seconds if locked
- */
-export function getLockoutRemainingSeconds(): number {
-  try {
-    const rawLockout = sessionStorage.getItem(LOCKOUT_KEY);
-    if (!rawLockout) return 0;
-    const lockoutUntil = parseInt(rawLockout, 10);
-    const now = Date.now();
-    if (now < lockoutUntil) {
-      return Math.ceil((lockoutUntil - now) / 1000);
-    }
-    sessionStorage.removeItem(LOCKOUT_KEY);
-    sessionStorage.removeItem(ATTEMPTS_KEY);
-    return 0;
-  } catch {
-    return 0;
-  }
-}
-
-/**
- * Gets remaining failed attempts before lockout
- */
-export function getRemainingAttempts(): number {
-  try {
-    const current = parseInt(sessionStorage.getItem(ATTEMPTS_KEY) || '0', 10);
-    return Math.max(0, MAX_FAILED_ATTEMPTS - current);
-  } catch {
-    return MAX_FAILED_ATTEMPTS;
-  }
-}
-
-/**
- * Records a failed attempt and triggers lockout if max reached
- */
-export function recordFailedAttempt(): { remainingAttempts: number; isLocked: boolean; lockoutSeconds: number } {
-  try {
-    const current = parseInt(sessionStorage.getItem(ATTEMPTS_KEY) || '0', 10) + 1;
-    sessionStorage.setItem(ATTEMPTS_KEY, current.toString());
-
-    if (current >= MAX_FAILED_ATTEMPTS) {
-      const lockUntil = Date.now() + LOCKOUT_DURATION_MS;
-      sessionStorage.setItem(LOCKOUT_KEY, lockUntil.toString());
-      return { remainingAttempts: 0, isLocked: true, lockoutSeconds: 60 };
-    }
-
-    return {
-      remainingAttempts: MAX_FAILED_ATTEMPTS - current,
-      isLocked: false,
-      lockoutSeconds: 0
-    };
-  } catch {
-    return { remainingAttempts: 3, isLocked: false, lockoutSeconds: 0 };
-  }
-}
-
-/**
- * Resets failed attempts after successful login
- */
-export function resetFailedAttempts(): void {
-  try {
-    sessionStorage.removeItem(ATTEMPTS_KEY);
-    sessionStorage.removeItem(LOCKOUT_KEY);
-  } catch {
-    // Ignore storage errors
-  }
-}
-
-/**
- * Validates PIN cryptographically against target hash ('4563')
- */
-export async function verifyAdminPin(pin: string): Promise<boolean> {
-  if (!pin || typeof pin !== 'string') return false;
-  const trimmed = pin.trim();
-  
-  // Direct check safety
-  if (trimmed === '4563') {
-    return true;
-  }
-
-  const hash = await sha256(trimmed);
-  return timingSafeEqual(hash, TARGET_PIN_HASH);
-}
-
-/**
- * Sets session auth with expiry
- */
-export function setAdminSession(): void {
-  try {
-    const sessionData = {
-      authenticated: true,
-      expiresAt: Date.now() + SESSION_TIMEOUT_MS,
-      token: Math.random().toString(36).substring(2) + Date.now().toString(36)
-    };
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
-  } catch {
-    // Ignore
-  }
-}
-
-/**
- * Verifies if active admin session is still valid
- */
-export function isSessionValid(): boolean {
-  try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
-    if (!raw) return false;
-    const session = JSON.parse(raw);
-    if (session.authenticated && session.expiresAt > Date.now()) {
-      return true;
-    }
-    sessionStorage.removeItem(SESSION_KEY);
-    return false;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Clears admin session (Logout)
- */
-export function clearAdminSession(): void {
-  try {
-    sessionStorage.removeItem(SESSION_KEY);
-  } catch {
-    // Ignore
-  }
-}
+export const ORDER_ID_PATTERN = /^NFC-[2-9A-HJ-NP-Z]{4}-[2-9A-HJ-NP-Z]{4}-[2-9A-HJ-NP-Z]{4}$/;
 
 /**
  * Sanitizes generic user input text, stripping dangerous HTML tags and script injections

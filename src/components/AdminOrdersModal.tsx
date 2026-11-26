@@ -10,6 +10,8 @@ import {
   getCustomerShippingEmailSubject,
   getCustomerShippingEmailBody,
   saveOrder,
+  cacheOrders,
+  clearOrderCache,
   exportOrdersToCsv,
   COMPANY_NAME,
   COMPANY_ORG_NR,
@@ -48,16 +50,14 @@ import {
   RotateCcw,
   CreditCard
 } from 'lucide-react';
+import { sanitizeSafeUrl, generateOrderId } from '../utils/security';
 import {
-  verifyAdminPin,
-  recordFailedAttempt,
-  resetFailedAttempts,
-  getLockoutRemainingSeconds,
-  isSessionValid,
-  setAdminSession,
-  clearAdminSession,
-  sanitizeSafeUrl
-} from '../utils/security';
+  ADMIN_EMAIL,
+  isAdminUser,
+  onAdminAuthChange,
+  signInAdminWithGoogle,
+  signOutAdmin
+} from '../utils/firebase';
 
 interface AdminOrdersModalProps {
   isOpen: boolean;
@@ -66,8 +66,9 @@ interface AdminOrdersModalProps {
 
 export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onClose }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [statusFilter, setStatusFilter] = useState<'all' | OrderStatus>('all');
@@ -86,19 +87,26 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
   const [customEmailBody, setCustomEmailBody] = useState<string>('');
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
 
-  const [lockoutSeconds, setLockoutSeconds] = useState(0);
-  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
+  // Følg Firebase-innloggingen. Bare admin-kontoen slipper inn; andre kontoer logges ut igjen.
+  useEffect(() => {
+    if (!isOpen) return;
+    return onAdminAuthChange((user) => {
+      if (user && !isAdminUser(user)) {
+        signOutAdmin();
+        setLoginError(`Kontoen ${user.email ?? ''} har ikke tilgang. Logg inn med ${ADMIN_EMAIL}.`);
+        setIsAuthenticated(false);
+      } else {
+        setIsAuthenticated(!!user);
+      }
+      setAuthChecked(true);
+    });
+  }, [isOpen]);
 
   useEffect(() => {
-    if (isOpen) {
-      if (isSessionValid()) {
-        setIsAuthenticated(true);
-      }
-      const remaining = getLockoutRemainingSeconds();
-      setLockoutSeconds(remaining);
+    if (isOpen && isAuthenticated) {
       loadOrders();
     }
-  }, [isOpen]);
+  }, [isOpen, isAuthenticated]);
 
   // Handle ESC key to dismiss submodals or main modal
   useEffect(() => {
@@ -120,20 +128,6 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, packingSlipOrder, previewOrder, onClose]);
 
-  useEffect(() => {
-    if (lockoutSeconds > 0) {
-      const timer = setInterval(() => {
-        setLockoutSeconds((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [lockoutSeconds]);
 
   const loadOrders = async () => {
     const list = getStoredOrders();
@@ -155,6 +149,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         setOrders(combined);
+        cacheOrders(combined);
         combined.forEach((o) => {
           if (o.trackingNumber && !trackingMap[o.orderId]) {
             trackingMap[o.orderId] = o.trackingNumber;
@@ -169,33 +164,27 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
 
   if (!isOpen) return null;
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (lockoutSeconds > 0) return;
-
-    const isValid = await verifyAdminPin(pinInput);
-    if (isValid) {
-      resetFailedAttempts();
-      setAdminSession();
-      setIsAuthenticated(true);
-      setPinError(false);
-      setPinInput('');
-      setRemainingAttempts(null);
-    } else {
-      const res = recordFailedAttempt();
-      setPinError(true);
-      if (res.isLocked) {
-        setLockoutSeconds(res.lockoutSeconds);
-      } else {
-        setRemainingAttempts(res.remainingAttempts);
+  const handleLogin = async () => {
+    setLoginError(null);
+    setIsSigningIn(true);
+    try {
+      await signInAdminWithGoogle();
+    } catch (err) {
+      const code = (err as { code?: string })?.code ?? '';
+      if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') {
+        setLoginError('Innloggingen feilet. Prøv igjen.');
+        console.error('Innlogging feilet:', err);
       }
+    } finally {
+      setIsSigningIn(false);
     }
   };
 
-  const handleLogout = () => {
-    clearAdminSession();
+  const handleLogout = async () => {
+    await signOutAdmin();
+    clearOrderCache();
+    setOrders([]);
     setIsAuthenticated(false);
-    setPinInput('');
   };
 
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
@@ -266,7 +255,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
   };
 
   const handleAddSampleOrder = () => {
-    const sampleId = `NFC-${Math.floor(100000 + Math.random() * 900000)}`;
+    const sampleId = generateOrderId();
     const sampleOrder: OrderRecord = {
       orderId: sampleId,
       createdAt: new Date().toISOString(),
@@ -406,64 +395,36 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
           </div>
         </div>
 
-        {/* Lock Screen if Not Authenticated */}
+        {/* Innloggingsskjerm hvis ikke innlogget */}
         {!isAuthenticated ? (
           <div className="p-8 sm:p-12 text-center space-y-6 my-auto max-w-md mx-auto">
             <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto border border-blue-200 shadow-sm">
               <Lock className="w-8 h-8" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900">Adgangskontroll for Ungdomsbedriften</h3>
+              <h3 className="text-xl font-bold text-slate-900">Kun for ungdomsbedriften</h3>
               <p className="text-xs text-slate-500 mt-1">
-                Tast inn PIN-koden for å administrere bestillinger, skrive ut pakkesedler og eksportere regnskap.
+                Logg inn med Google-kontoen {ADMIN_EMAIL} for å se bestillinger, skrive ut pakkesedler og eksportere regnskap.
               </p>
             </div>
 
-            {lockoutSeconds > 0 ? (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs space-y-1">
-                <div className="flex items-center justify-center space-x-1 font-bold">
-                  <AlertTriangle className="w-4 h-4 text-amber-600" />
-                  <span>Sikkerhetssperre aktivert</span>
-                </div>
-                <p>For mange feilforsøk. Vent {lockoutSeconds} sekunder før neste forsøk.</p>
-              </div>
-            ) : null}
+            {loginError && (
+              <p className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-semibold" role="alert">
+                {loginError}
+              </p>
+            )}
 
-            <form onSubmit={handleLogin} className="space-y-3">
-              <input
-                type="password"
-                inputMode="numeric"
-                autoComplete="current-password"
-                maxLength={8}
-                disabled={lockoutSeconds > 0}
-                value={pinInput}
-                onChange={(e) => {
-                  setPinInput(e.target.value);
-                  setPinError(false);
-                }}
-                placeholder="Skriv inn 4-sifret PIN-kode"
-                className={`w-full text-center text-xl tracking-widest font-mono py-3 px-4 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
-                  pinError ? 'border-red-400 bg-red-50 text-red-700' : 'border-slate-300'
-                }`}
-              />
-
-              {pinError && lockoutSeconds === 0 && (
-                <p className="text-xs text-red-600 font-semibold animate-in fade-in">
-                  Feil PIN-kode. {remainingAttempts !== null && `Gjenværende forsøk: ${remainingAttempts}`}
-                </p>
-              )}
-
+            <div className="space-y-3">
               <button
-                type="submit"
-                disabled={lockoutSeconds > 0 || !pinInput.trim()}
+                type="button"
+                onClick={handleLogin}
+                disabled={!authChecked || isSigningIn}
                 className={`w-full py-3 text-white font-bold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center space-x-2 touch-manipulation min-h-[44px] ${
-                  lockoutSeconds > 0 || !pinInput.trim()
-                    ? 'bg-slate-300 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
+                  !authChecked || isSigningIn ? 'bg-slate-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
                 }`}
               >
                 <ShieldCheck className="w-4 h-4" />
-                <span>Lås opp ordreoversikt</span>
+                <span>{isSigningIn ? 'Logger inn …' : 'Logg inn med Google'}</span>
               </button>
 
               <button
@@ -471,13 +432,8 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                 onClick={onClose}
                 className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-colors min-h-[44px] flex items-center justify-center touch-manipulation"
               >
-                Avbryt / Tilbake til butikken
+                Tilbake til butikken
               </button>
-            </form>
-
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-center space-x-2 text-[11px] text-slate-500">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>Sikret med SHA-256 kryptering og automatisk brute force-vern</span>
             </div>
           </div>
         ) : (

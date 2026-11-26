@@ -17,7 +17,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { saveOrder } from '../utils/orders';
-import { sanitizeText, sanitizePhone, isValidEmail } from '../utils/security';
+import { sanitizeText, sanitizePhone, isValidEmail, generateOrderId } from '../utils/security';
 
 interface CheckoutPageProps {
   items: CartItem[];
@@ -108,7 +108,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
     setIsSubmitting(true);
 
-    const generatedId = `NFC-${Math.floor(100000 + Math.random() * 900000)}`;
+    const generatedId = generateOrderId();
 
     const sanitizedCustomer: CustomerOrderData = {
       companyName: cleanCompany,
