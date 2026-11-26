@@ -21,7 +21,7 @@ const firebaseConfig = {
 // Kun disse Google-kontoene får se og endre ordrer. Bruker-ID (uid) i stedet for e-post,
 // så private e-poster ikke står i offentlig kode. Samme liste står i firestore.rules (SmakSync).
 // Finn ID-en under Firebase-konsollen → Authentication → Users, eller i admin etter innlogging.
-export const ADMIN_UIDS: string[] = [];
+export const ADMIN_UIDS: string[] = ['9t6J2r8E3mhW3SaX5v4hP0PD71C2', 'MW6Ssb83uwPlFfFHHD8Vu1Y6hRe2'];
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
