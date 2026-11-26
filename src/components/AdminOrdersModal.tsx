@@ -52,7 +52,6 @@ import {
 } from 'lucide-react';
 import { sanitizeSafeUrl, generateOrderId } from '../utils/security';
 import {
-  ADMIN_EMAIL,
   isAdminUser,
   onAdminAuthChange,
   signInAdminWithGoogle,
@@ -93,7 +92,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
     return onAdminAuthChange((user) => {
       if (user && !isAdminUser(user)) {
         signOutAdmin();
-        setLoginError(`Kontoen ${user.email ?? ''} har ikke tilgang. Logg inn med ${ADMIN_EMAIL}.`);
+        setLoginError(`Kontoen ${user.email ?? ''} har ikke tilgang. Konto-ID: ${user.uid}`);
         setIsAuthenticated(false);
       } else {
         setIsAuthenticated(!!user);
@@ -404,7 +403,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
             <div>
               <h3 className="text-xl font-bold text-slate-900">Kun for ungdomsbedriften</h3>
               <p className="text-xs text-slate-500 mt-1">
-                Logg inn med Google-kontoen {ADMIN_EMAIL} for å se bestillinger, skrive ut pakkesedler og eksportere regnskap.
+                Logg inn med Google for å se bestillinger, skrive ut pakkesedler og eksportere regnskap.
               </p>
             </div>
 

@@ -18,19 +18,21 @@ const firebaseConfig = {
   appId: '1:247220233955:web:4dd3a6269394575f2347d6'
 };
 
-// Kun denne Google-kontoen får se og endre ordrer. Samme e-post står i firestore.rules.
-export const ADMIN_EMAIL = 'aabakstudio@gmail.com';
+// Kun disse Google-kontoene får se og endre ordrer. Bruker-ID (uid) i stedet for e-post,
+// så private e-poster ikke står i offentlig kode. Samme liste står i firestore.rules (SmakSync).
+// Finn ID-en under Firebase-konsollen → Authentication → Users, eller i admin etter innlogging.
+export const ADMIN_UIDS: string[] = [];
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 export function isAdminUser(user: User | null): boolean {
-  return !!user && user.emailVerified && user.email?.toLowerCase() === ADMIN_EMAIL;
+  return !!user && ADMIN_UIDS.includes(user.uid);
 }
 
 export async function signInAdminWithGoogle(): Promise<User> {
   const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: 'select_account', login_hint: ADMIN_EMAIL });
+  provider.setCustomParameters({ prompt: 'select_account' });
   const result = await signInWithPopup(auth, provider);
   return result.user;
 }
