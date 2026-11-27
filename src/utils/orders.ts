@@ -5,6 +5,8 @@ const ORDERS_STORAGE_KEY = 'nfc_review_orders_v1';
 export const STORE_NOTIFICATION_EMAIL = 'aabakstudio@gmail.com';
 export const COMPANY_NAME = 'Aabakstudio Ungdomsbedrift';
 export const COMPANY_ORG_NR = '938 823 014';
+// Vippsnummeret kundene betaler til. Står i koden (ikke i nettleseren) så alle kunder ser samme nummer.
+export const VIPPS_NUMBER = '142786';
 export const COMPANY_ADDRESS = 'Hamar katedralskole, Ringgata 235, 2315 Hamar';
 
 export function getStoredOrders(): OrderRecord[] {

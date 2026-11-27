@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { OrderRecord } from '../types';
-import { getStoredOrders, COMPANY_NAME, COMPANY_ORG_NR, COMPANY_ADDRESS, STORE_NOTIFICATION_EMAIL } from '../utils/orders';
+import { getStoredOrders, COMPANY_NAME, COMPANY_ORG_NR, COMPANY_ADDRESS, STORE_NOTIFICATION_EMAIL, VIPPS_NUMBER } from '../utils/orders';
 import { fetchOrderFromFirestore } from '../utils/firestoreOrders';
 import {
   ArrowLeft,
@@ -43,7 +43,7 @@ export const OrderTrackingPage: React.FC<OrderTrackingPageProps> = ({
   const [copiedVippsNr, setCopiedVippsNr] = useState(false);
   const [copiedOrderRef, setCopiedOrderRef] = useState(false);
 
-  const vippsNumber = localStorage.getItem('nfc_vipps_number') || '938823014';
+  const vippsNumber = VIPPS_NUMBER;
 
   // Load order data (from localStorage first, then Firestore)
   useEffect(() => {

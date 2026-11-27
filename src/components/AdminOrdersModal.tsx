@@ -16,7 +16,8 @@ import {
   COMPANY_NAME,
   COMPANY_ORG_NR,
   COMPANY_ADDRESS,
-  STORE_NOTIFICATION_EMAIL
+  STORE_NOTIFICATION_EMAIL,
+  VIPPS_NUMBER
 } from '../utils/orders';
 import { fetchAllOrdersFromFirestore } from '../utils/firestoreOrders';
 import {
@@ -73,11 +74,6 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
   const [statusFilter, setStatusFilter] = useState<'all' | OrderStatus>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'orders' | 'guide' | 'settings'>('orders');
-  const [vippsNumberInput, setVippsNumberInput] = useState<string>(() => {
-    return localStorage.getItem('nfc_vipps_number') || '938823014';
-  });
-  const [vippsSavedNotice, setVippsSavedNotice] = useState(false);
-
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedEmailId, setCopiedEmailId] = useState<string | null>(null);
   const [previewOrder, setPreviewOrder] = useState<OrderRecord | null>(null);
@@ -586,45 +582,12 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                   </p>
                 </div>
 
-                <div className="p-5 bg-white rounded-2xl border border-slate-200 space-y-4 shadow-xs">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Vippsnummer / Bedriftsnummer (UB)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="F.eks. 938823014 eller tildelt 5-6 sifre"
-                      value={vippsNumberInput}
-                      onChange={(e) => {
-                        setVippsNumberInput(e.target.value);
-                        setVippsSavedNotice(false);
-                      }}
-                      className="w-full px-3.5 py-2.5 text-xs font-mono rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#ff5b24] bg-white font-bold"
-                    />
-                    <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
-                      Dette Vippsnummeret vises umiddelbart til kunden på sporingssiden og i kassen, sammen med det unike ordrenummeret som melding.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center space-x-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        localStorage.setItem('nfc_vipps_number', vippsNumberInput.trim());
-                        setVippsSavedNotice(true);
-                        setTimeout(() => setVippsSavedNotice(false), 3000);
-                      }}
-                      className="py-2.5 px-4 rounded-xl bg-[#ff5b24] hover:bg-[#e04f1e] text-white font-bold text-xs transition-colors flex items-center space-x-1.5 shadow-xs cursor-pointer"
-                    >
-                      <Check className="w-4 h-4" />
-                      <span>Lagre Vippsnummer</span>
-                    </button>
-                    {vippsSavedNotice && (
-                      <span className="text-xs text-emerald-600 font-bold">
-                        ✓ Vippsnummer lagret!
-                      </span>
-                    )}
-                  </div>
+                <div className="p-5 bg-white rounded-2xl border border-slate-200 space-y-2 shadow-xs">
+                  <p className="block text-xs font-bold text-slate-700">Vippsnummer kundene betaler til</p>
+                  <p className="text-2xl font-mono font-black text-slate-900">{VIPPS_NUMBER}</p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Vises til alle kunder på sporingssiden, sammen med ordrenummeret som melding. Nummeret endres i koden (<code>src/utils/orders.ts</code>), så det er likt for alle.
+                  </p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-orange-50/70 border border-orange-200 text-xs text-slate-700 space-y-2">
@@ -634,7 +597,7 @@ export const AdminOrdersModal: React.FC<AdminOrdersModalProps> = ({ isOpen, onCl
                   <ol className="list-decimal pl-4 space-y-1 text-slate-600">
                     <li>Opprett bedriftskonto for UB hos <strong>SpareBank 1 Østlandet</strong> med org.nr <strong>{COMPANY_ORG_NR}</strong>.</li>
                     <li>Gå til <strong>vipps.no</strong> / bedriftsportalen og opprett <em>«Kjøp og betal / Vippsnummer»</em>.</li>
-                    <li>Tast inn det tildelte nummeret i feltet over og trykk «Lagre». Ferdig!</li>
+                    <li>Legg det tildelte nummeret inn som <code>VIPPS_NUMBER</code> i <code>src/utils/orders.ts</code> og publiser.</li>
                   </ol>
                 </div>
 
